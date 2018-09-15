@@ -81,9 +81,8 @@ from opencmiss.iron import iron
 #iron.OutputSetOn("Testing")
 
 # Get the computational nodes info
-computationEnvironment = iron.ComputationEnvironment()
-numberOfComputationalNodes = computationEnvironment.NumberOfWorldNodesGet()
-computationalNodeNumber = computationEnvironment.WorldNodeNumberGet()
+numberOfComputationalNodes = iron.ComputationalNumberOfNodesGet()
+computationalNodeNumber = iron.ComputationalNodeNumberGet()
 
 #================================================================================================================================
 #  Problem Control Panel
