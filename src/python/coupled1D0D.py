@@ -12,30 +12,32 @@ MeshUserNumber                            = 6
 MeshUserNumber2                           = 7
 DecompositionUserNumber                   = 8
 DecompositionUserNumber2                  = 9
-GeometricFieldUserNumber                  = 10
-GeometricFieldUserNumber2                 = 11
-EquationsSetFieldUserNumberStree          = 12
-EquationsSetFieldUserNumberCharacteristic = 13
-EquationsSetFieldUserNumberNavierStokes   = 14
-EquationsSetFieldUserNumberAdvection      = 15
-DependentFieldUserNumber                  = 16
-DependentFieldUserNumber2                 = 17
-DependentFieldUserNumber3                 = 18
-MaterialsFieldUserNumber                  = 19
-MaterialsFieldUserNumber2                 = 20
-IndependentFieldUserNumber                = 21
-EquationsSetUserNumberStree               = 22
-EquationsSetUserNumberCharacteristic      = 23
-EquationsSetUserNumberNavierStokes        = 24
-EquationsSetUserNumberAdvection           = 25
-ProblemUserNumber                         = 26
-CellMLUserNumber                          = 27
-CellMLModelsFieldUserNumber               = 28
-CellMLStateFieldUserNumber                = 29
-CellMLIntermediateFieldUserNumber         = 30
-CellMLParametersFieldUserNumber           = 31
-MaterialsFieldUserNumberCellML            = 32
-AnalyticFieldUserNumber                   = 33
+DecomposerUserNumber                      = 10
+DecomposerUserNumber2                     = 11
+GeometricFieldUserNumber                  = 12
+GeometricFieldUserNumber2                 = 13
+EquationsSetFieldUserNumberStree          = 14
+EquationsSetFieldUserNumberCharacteristic = 15
+EquationsSetFieldUserNumberNavierStokes   = 16
+EquationsSetFieldUserNumberAdvection      = 17
+DependentFieldUserNumber                  = 18
+DependentFieldUserNumber2                 = 19
+DependentFieldUserNumber3                 = 20
+MaterialsFieldUserNumber                  = 21
+MaterialsFieldUserNumber2                 = 22
+IndependentFieldUserNumber                = 23
+EquationsSetUserNumberStree               = 24
+EquationsSetUserNumberCharacteristic      = 25
+EquationsSetUserNumberNavierStokes        = 26
+EquationsSetUserNumberAdvection           = 27
+ProblemUserNumber                         = 28
+CellMLUserNumber                          = 29
+CellMLModelsFieldUserNumber               = 30
+CellMLStateFieldUserNumber                = 31
+CellMLIntermediateFieldUserNumber         = 32
+CellMLParametersFieldUserNumber           = 33
+MaterialsFieldUserNumberCellML            = 34
+AnalyticFieldUserNumber                   = 35
 # Solver user numbers
 SolverDAEUserNumber                       = 1
 SolverStreeUserNumber                     = 1
@@ -86,8 +88,11 @@ iron.Context.WorldRegionGet(worldRegion)
 # Get the computational nodes info
 computationEnvironment = iron.ComputationEnvironment()
 iron.Context.ComputationEnvironmentGet(computationEnvironment)
-numberOfComputationalNodes = computationEnvironment.NumberOfWorldNodesGet()
-computationalNodeNumber = computationEnvironment.WorldNodeNumberGet()
+
+worldWorkGroup = iron.WorkGroup()
+computationEnvironment.WorldWorkGroupGet(worldWorkGroup)
+numberOfComputationalNodes = worldWorkGroup.NumberOfGroupNodesGet()
+computationalNodeNumber = worldWorkGroup.GroupNodeNumberGet()
 
 #================================================================================================================================
 #  Problem Control Panel
@@ -646,6 +651,27 @@ if (streeBoundaries):
     DecompositionTime.TypeSet(iron.DecompositionTypes.CALCULATED)
     DecompositionTime.NumberOfDomainsSet(numberOfComputationalNodes)
     DecompositionTime.CreateFinish()
+
+#================================================================================================================================
+#  Decomposer
+#================================================================================================================================
+
+if (ProgressDiagnostics):
+    print " == >> DECOMPOSER << == "
+
+decomposer = iron.Decomposer()
+decomposer.CreateStart(decomposerUserNumber,worldRegion,worldWorkGroup)
+decompositionIndex = decomposer.DecompositionAdd(Decomposition)
+decomposer.CreateFinish()
+
+#------------------
+
+if (streeBoundaries):
+    # Start the creation of TIME mesh decomposition
+    decomposerTime = iron.Decomposer()
+    decomposerTime.CreateStart(decomposerUserNumber2,worldRegion,worldWorkGroup)
+    decomposition2Index = decomposerTime.DecompositionAdd(DecompositionTime)
+    decomposerTime.CreateFinish()
 
 #================================================================================================================================
 #  Geometric Field
