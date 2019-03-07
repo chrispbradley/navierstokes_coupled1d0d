@@ -124,9 +124,10 @@ if (ProgressDiagnostics):
     print(" == >> Reading geometry from files... << == ")
 
 # Read the node file
-with open('input/Node.csv','rb') as csvfile:
+with open('input/Node.csv', "rt", encoding="ascii") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     rownum = 0
+    print(reader)
     for row in reader:
         if (rownum == 0):
             # Read the header row
