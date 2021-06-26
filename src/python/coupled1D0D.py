@@ -131,13 +131,14 @@ ProgressDiagnostics = False   # Set to diagnostics
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> Reading geometry from files... << == "
+    print(" == >> Reading geometry from files... << == ")
 
 # Read the node file
-with open('input/Node.csv','rb') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
+with open('input/Node.csv','r',newline='') as csvfile:
+    reader = csv.reader(csvfile,delimiter=',')
     rownum = 0
-    for row in reader:
+    rows = list(reader)
+    for row in rows:
         if (rownum == 0):
             # Read the header row
             header = row
@@ -220,12 +221,13 @@ with open('input/Node.csv','rb') as csvfile:
 #------------------
 
 # Read the element file
-with open('input/Element.csv','rb') as csvfile:
+with open('input/Element.csv','r') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     rownum = 0
     i = 0
     k = 0
-    for row in reader:
+    rows = list(reader)
+    for row in rows:
         if (rownum == 0):
             # Read the header row
             header = row
@@ -250,11 +252,11 @@ with open('input/Element.csv','rb') as csvfile:
         rownum+=1
 
 if (ProgressDiagnostics):
-    print " Input at nodes: " + str(inputNodeNumber)
-    print " Bifurcations at nodes: " + str(bifurcationNodeNumber)
-    print " Trifurcations at nodes: " + str(trifurcationNodeNumber)
-    print " Terminal at nodes: " + str(coupledNodeNumber)
-    print " == >> Finished reading geometry... << == "
+    print(" Input at nodes: " + str(inputNodeNumber))
+    print(" Bifurcations at nodes: " + str(bifurcationNodeNumber))
+    print(" Trifurcations at nodes: " + str(trifurcationNodeNumber))
+    print(" Terminal at nodes: " + str(coupledNodeNumber))
+    print(" == >> Finished reading geometry... << == ")
 
 #================================================================================================================================
 #  Initial Data & Default Values
@@ -467,7 +469,7 @@ else:
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> COORDINATE SYSTEM << == "
+    print(" == >> COORDINATE SYSTEM << == ")
 
 # Start the creation of RC coordinate system
 CoordinateSystem = iron.CoordinateSystem()
@@ -480,7 +482,7 @@ CoordinateSystem.CreateFinish()
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> REGION << == "
+    print(" == >> REGION << == ")
 
 # Start the creation of SPACE region
 Region = iron.Region()
@@ -502,7 +504,7 @@ if (streeBoundaries):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> BASIS << == "
+    print(" == >> BASIS << == ")
 
 # Start the creation of SPACE bases
 basisXiGaussSpace = 3
@@ -530,7 +532,7 @@ if (streeBoundaries):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> NODES << == "
+    print(" == >> NODES << == ")
 
 # Start the creation of mesh nodes
 Nodes = iron.Nodes()
@@ -547,7 +549,7 @@ if (streeBoundaries):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> MESH << == "
+    print(" == >> MESH << == ")
 
 # Start the creation of SPACE mesh
 Mesh = iron.Mesh()
@@ -633,13 +635,12 @@ if (streeBoundaries):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> MESH DECOMPOSITION << == "
+    print(" == >> MESH DECOMPOSITION << == ")
 
 # Start the creation of SPACE mesh decomposition
 Decomposition = iron.Decomposition()
 Decomposition.CreateStart(DecompositionUserNumber,Mesh)
 Decomposition.TypeSet(iron.DecompositionTypes.CALCULATED)
-Decomposition.NumberOfDomainsSet(numberOfComputationalNodes)
 Decomposition.CreateFinish()
 
 #------------------
@@ -657,10 +658,10 @@ if (streeBoundaries):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> DECOMPOSER << == "
+    print(" == >> DECOMPOSER << == ")
 
 decomposer = iron.Decomposer()
-decomposer.CreateStart(decomposerUserNumber,worldRegion,worldWorkGroup)
+decomposer.CreateStart(DecomposerUserNumber,worldRegion,worldWorkGroup)
 decompositionIndex = decomposer.DecompositionAdd(Decomposition)
 decomposer.CreateFinish()
 
@@ -669,7 +670,7 @@ decomposer.CreateFinish()
 if (streeBoundaries):
     # Start the creation of TIME mesh decomposition
     decomposerTime = iron.Decomposer()
-    decomposerTime.CreateStart(decomposerUserNumber2,worldRegion,worldWorkGroup)
+    decomposerTime.CreateStart(DecomposerUserNumber2,worldRegion,worldWorkGroup)
     decomposition2Index = decomposerTime.DecompositionAdd(DecompositionTime)
     decomposerTime.CreateFinish()
 
@@ -678,7 +679,7 @@ if (streeBoundaries):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> GEOMETRIC FIELD << == "
+    print(" == >> GEOMETRIC FIELD << == ")
 
 # Start the creation of SPACE geometric field
 GeometricField = iron.Field()
@@ -756,7 +757,7 @@ if (streeBoundaries):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> EQUATIONS SET << == "
+    print(" == >> EQUATIONS SET << == ")
 
 # Create the equations set for STREE
 if (streeBoundaries):
@@ -813,7 +814,7 @@ if (coupledAdvection):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> DEPENDENT FIELD << == "
+    print(" == >> DEPENDENT FIELD << == ")
 
 # STREE
 if (streeBoundaries):
@@ -928,7 +929,7 @@ if (coupledAdvection):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> MATERIALS FIELD << == "
+    print(" == >> MATERIALS FIELD << == ")
 
 # STREE
 if (streeBoundaries):
@@ -1028,7 +1029,7 @@ if (coupledAdvection):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> INDEPENDENT FIELD << == "
+    print(" == >> INDEPENDENT FIELD << == ")
 
 # CHARACTERISTIC
 # Create the equations set independent field variables
@@ -1129,7 +1130,7 @@ if (coupledAdvection):
 
 if (HeartInput):
     if (ProgressDiagnostics):
-        print " == >> ANALYTIC FIELD << == "
+        print(" == >> ANALYTIC FIELD << == ")
 
     AnalyticFieldNavierStokes = iron.Field()
     EquationsSetNavierStokes.AnalyticCreateStart(iron.NavierStokesAnalyticFunctionTypes.FLOWRATE_AORTA,AnalyticFieldUserNumber,
@@ -1159,7 +1160,7 @@ if (RCRBoundaries):
     #----------------------------------------------------------------------------------------------------------------------------
 
     if (ProgressDiagnostics):
-        print " == >> RCR CELLML MODEL << == "
+        print(" == >> RCR CELLML MODEL << == ")
 
     qCellMLComponent = 1
     pCellMLComponent = 2
@@ -1249,7 +1250,7 @@ if (Heart):
     #----------------------------------------------------------------------------------------------------------------------------
 
     if (ProgressDiagnostics):
-        print " == >> HEART CELLML MODEL << == "
+        print(" == >> HEART CELLML MODEL << == ")
 
     qCellMLComponent = 1
     pCellMLComponent = 2
@@ -1328,7 +1329,7 @@ if (Heart):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> EQUATIONS << == "
+    print(" == >> EQUATIONS << == ")
 
 # 1th Equations Set - STREE
 if (streeBoundaries):
@@ -1376,7 +1377,7 @@ if (coupledAdvection):
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> PROBLEM << == "
+    print(" == >> PROBLEM << == ")
 
 # Start the creation of a problem.
 Problem = iron.Problem()
@@ -1391,7 +1392,7 @@ Problem.CreateFinish()
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> PROBLEM CONTROL LOOP << == "
+    print(" == >> PROBLEM CONTROL LOOP << == ")
 
 '''
    Solver Control Loops
@@ -1479,7 +1480,7 @@ Problem.ControlLoopCreateFinish()
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> SOLVERS << == "
+    print(" == >> SOLVERS << == ")
 
 # Start the creation of the problem solvers
 DynamicSolverNavierStokes     = iron.Solver()
@@ -1591,7 +1592,7 @@ Problem.SolversCreateFinish()
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> SOLVER EQUATIONS << == "
+    print(" == >> SOLVER EQUATIONS << == ")
 
 # Start the creation of the problem solver equations
 NonlinearSolverCharacteristic = iron.Solver()
@@ -1679,7 +1680,7 @@ Problem.SolverEquationsCreateFinish()
 #================================================================================================================================
 
 if (ProgressDiagnostics):
-    print " == >> BOUNDARY CONDITIONS << == "
+    print(" == >> BOUNDARY CONDITIONS << == ")
 
 if (streeBoundaries):
     # STREE
@@ -1760,10 +1761,10 @@ if (timestepStability):
         elementNumber[i] = i
         elementLength[i] = Length1 + Length2
         elementLength[0] = elementLength[i]
-        print "Element %1.0f" %elementNumber[i],
-        print "Length: %1.1f" %elementLength[i],
-        print "Length1: %1.1f" %Length1,
-        print "Length2: %1.1f" %Length2
+        print("Element %1.0f" %elementNumber[i],)
+        print("Length: %1.1f" %elementLength[i],)
+        print("Length1: %1.1f" %Length1,)
+        print("Length2: %1.1f" %Length2)
     maxElementLength = max(elementLength)
     minElementLength = min(elementLength)
     print("Max Element Length: %1.3f" % maxElementLength)
@@ -1832,7 +1833,7 @@ terminal 45 ---- brain ----------- left anterior cerebral artery 2
 
 if (streeBoundaries):
     if (ProgressDiagnostics):
-        print " == >> STREE << == "
+        print(" == >> STREE << == ")
 
     numberOfTerminalNodes = 27
     # Loop through the terminal nodes
@@ -1927,15 +1928,15 @@ if (streeBoundaries):
 #================================================================================================================================
 
 # Solve the problem
-print "Solving problem..."
+print("Solving problem...")
 start = time.time()
 Problem.Solve()
 end = time.time()
 elapsed = end - start
-print "Total Number of Elements = %d " %totalNumberOfElements
-print "Calculation Time = %3.4f" %elapsed
-print "Problem solved!"
-print "#"
+print("Total Number of Elements = %d " %totalNumberOfElements)
+print("Calculation Time = %3.4f" %elapsed)
+print("Problem solved!")
+print("#")
 
 #================================================================================================================================
 #  Finish Program
