@@ -3,41 +3,42 @@
 #================================================================================================================================
 
 # Set program variables
-CoordinateSystemUserNumber                = 1
-BasisUserNumberSpace                      = 2
-BasisUserNumberTime                       = 3
-RegionUserNumber                          = 4
-RegionUserNumber2                         = 5
-MeshUserNumber                            = 6
-MeshUserNumber2                           = 7
-DecompositionUserNumber                   = 8
-DecompositionUserNumber2                  = 9
-DecomposerUserNumber                      = 10
-DecomposerUserNumber2                     = 11
-GeometricFieldUserNumber                  = 12
-GeometricFieldUserNumber2                 = 13
-EquationsSetFieldUserNumberStree          = 14
-EquationsSetFieldUserNumberCharacteristic = 15
-EquationsSetFieldUserNumberNavierStokes   = 16
-EquationsSetFieldUserNumberAdvection      = 17
-DependentFieldUserNumber                  = 18
-DependentFieldUserNumber2                 = 19
-DependentFieldUserNumber3                 = 20
-MaterialsFieldUserNumber                  = 21
-MaterialsFieldUserNumber2                 = 22
-IndependentFieldUserNumber                = 23
-EquationsSetUserNumberStree               = 24
-EquationsSetUserNumberCharacteristic      = 25
-EquationsSetUserNumberNavierStokes        = 26
-EquationsSetUserNumberAdvection           = 27
-ProblemUserNumber                         = 28
-CellMLUserNumber                          = 29
-CellMLModelsFieldUserNumber               = 30
-CellMLStateFieldUserNumber                = 31
-CellMLIntermediateFieldUserNumber         = 32
-CellMLParametersFieldUserNumber           = 33
-MaterialsFieldUserNumberCellML            = 34
-AnalyticFieldUserNumber                   = 35
+ContextUserNumber                         = 1
+CoordinateSystemUserNumber                = 2
+BasisUserNumberSpace                      = 3
+BasisUserNumberTime                       = 4
+RegionUserNumber                          = 5
+RegionUserNumber2                         = 6
+MeshUserNumber                            = 7
+MeshUserNumber2                           = 8
+DecompositionUserNumber                   = 9
+DecompositionUserNumber2                  = 10
+DecomposerUserNumber                      = 11
+DecomposerUserNumber2                     = 12
+GeometricFieldUserNumber                  = 13
+GeometricFieldUserNumber2                 = 14
+EquationsSetFieldUserNumberStree          = 15
+EquationsSetFieldUserNumberCharacteristic = 16
+EquationsSetFieldUserNumberNavierStokes   = 17
+EquationsSetFieldUserNumberAdvection      = 18
+DependentFieldUserNumber                  = 19
+DependentFieldUserNumber2                 = 20
+DependentFieldUserNumber3                 = 21
+MaterialsFieldUserNumber                  = 22
+MaterialsFieldUserNumber2                 = 23
+IndependentFieldUserNumber                = 24
+EquationsSetUserNumberStree               = 25
+EquationsSetUserNumberCharacteristic      = 26
+EquationsSetUserNumberNavierStokes        = 27
+EquationsSetUserNumberAdvection           = 28
+ProblemUserNumber                         = 29
+CellMLUserNumber                          = 30
+CellMLModelsFieldUserNumber               = 31
+CellMLStateFieldUserNumber                = 32
+CellMLIntermediateFieldUserNumber         = 33
+CellMLParametersFieldUserNumber           = 34
+MaterialsFieldUserNumberCellML            = 35
+AnalyticFieldUserNumber                   = 36
 # Solver user numbers
 SolverDAEUserNumber                       = 1
 SolverStreeUserNumber                     = 1
@@ -77,8 +78,11 @@ from scipy.linalg  import inv,eig
 from scipy.special import jn
 from opencmiss.iron import iron
 
+context = iron.Context()
+context.Create(ContextUserNumber)
+
 worldRegion = iron.Region()
-iron.Context.WorldRegionGet(worldRegion)
+context.WorldRegionGet(worldRegion)
 
 # Diagnostics
 #iron.DiagnosticsSetOn(iron.DiagnosticTypes.ALL,[1,2,3,4,5],"Diagnostics",[""])
@@ -87,7 +91,7 @@ iron.Context.WorldRegionGet(worldRegion)
 
 # Get the computational nodes info
 computationEnvironment = iron.ComputationEnvironment()
-iron.Context.ComputationEnvironmentGet(computationEnvironment)
+context.ComputationEnvironmentGet(computationEnvironment)
 
 worldWorkGroup = iron.WorkGroup()
 computationEnvironment.WorldWorkGroupGet(worldWorkGroup)
@@ -473,7 +477,7 @@ if (ProgressDiagnostics):
 
 # Start the creation of RC coordinate system
 CoordinateSystem = iron.CoordinateSystem()
-CoordinateSystem.CreateStart(CoordinateSystemUserNumber,iron.Context)
+CoordinateSystem.CreateStart(CoordinateSystemUserNumber,context)
 CoordinateSystem.DimensionSet(3)
 CoordinateSystem.CreateFinish()
 
@@ -509,7 +513,7 @@ if (ProgressDiagnostics):
 # Start the creation of SPACE bases
 basisXiGaussSpace = 3
 BasisSpace = iron.Basis()
-BasisSpace.CreateStart(BasisUserNumberSpace,iron.Context)
+BasisSpace.CreateStart(BasisUserNumberSpace,context)
 BasisSpace.type = iron.BasisTypes.LAGRANGE_HERMITE_TP
 BasisSpace.numberOfXi = numberOfDimensions
 BasisSpace.interpolationXi = [iron.BasisInterpolationSpecifications.QUADRATIC_LAGRANGE]
@@ -520,7 +524,7 @@ if (streeBoundaries):
     # Start the creation of TIME bases
     basisXiGaussSpace = 3
     BasisTime = iron.Basis()
-    BasisTime.CreateStart(BasisUserNumberTime,iron.Context)
+    BasisTime.CreateStart(BasisUserNumberTime,context)
     BasisTime.type = iron.BasisTypes.LAGRANGE_HERMITE_TP
     BasisTime.numberOfXi = numberOfDimensions
     BasisTime.interpolationXi = [iron.BasisInterpolationSpecifications.LINEAR_LAGRANGE]
@@ -1384,7 +1388,7 @@ Problem = iron.Problem()
 ProblemSpecification = [iron.ProblemClasses.FLUID_MECHANICS,
                         iron.ProblemTypes.NAVIER_STOKES_EQUATION,
                         ProblemSubtype]
-Problem.CreateStart(ProblemUserNumber,iron.Context,ProblemSpecification)
+Problem.CreateStart(ProblemUserNumber,context,ProblemSpecification)
 Problem.CreateFinish()
 
 #================================================================================================================================
