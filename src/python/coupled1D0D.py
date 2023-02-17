@@ -78,6 +78,8 @@ from scipy.linalg  import inv,eig
 from scipy.special import jn
 from opencmiss.iron import iron
 
+quit()
+
 context = iron.Context()
 context.Create(ContextUserNumber)
 
