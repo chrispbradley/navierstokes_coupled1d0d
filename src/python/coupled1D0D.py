@@ -76,26 +76,26 @@ from scipy.fftpack import fft,ifft
 from scipy.sparse  import linalg
 from scipy.linalg  import inv,eig
 from scipy.special import jn
-from opencmiss.iron import iron
+from opencmiss.opencmiss import OpenCMISS_Python as oc
 
-quit()
+#quit()
 
-context = iron.Context()
+context = oc.Context()
 context.Create(ContextUserNumber)
 
-worldRegion = iron.Region()
+worldRegion = oc.Region()
 context.WorldRegionGet(worldRegion)
 
 # Diagnostics
-#iron.DiagnosticsSetOn(iron.DiagnosticTypes.ALL,[1,2,3,4,5],"Diagnostics",[""])
-#iron.ErrorHandlingModeSet(iron.ErrorHandlingModes.TRAP_ERROR)
-#iron.OutputSetOn("Testing")
+#oc.DiagnosticsSetOn(oc.DiagnosticTypes.ALL,[1,2,3,4,5],"Diagnostics",[""])
+#oc.ErrorHandlingModeSet(oc.ErrorHandlingModes.TRAP_ERROR)
+#oc.OutputSetOn("Testing")
 
 # Get the computational nodes info
-computationEnvironment = iron.ComputationEnvironment()
+computationEnvironment = oc.ComputationEnvironment()
 context.ComputationEnvironmentGet(computationEnvironment)
 
-worldWorkGroup = iron.WorkGroup()
+worldWorkGroup = oc.WorkGroup()
 computationEnvironment.WorldWorkGroupGet(worldWorkGroup)
 numberOfComputationalNodes = worldWorkGroup.NumberOfGroupNodesGet()
 computationalNodeNumber = worldWorkGroup.GroupNodeNumberGet()
@@ -153,17 +153,17 @@ with open('input/Node.csv','r',newline='') as csvfile:
             if (rownum == 1):
                 numberOfNodesSpace = int(row[10])
                 totalNumberOfNodes = numberOfNodesSpace*3
-                xValues = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)
-                yValues = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)
-                zValues = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)
-                A0      = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)  # Area        (m2)
-                H       = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)  # Thickness   (m)
-                E       = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)  # Elasticity  (Pa)
-                kp      = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)
-                k1      = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)
-                k2      = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)
-                k3      = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)
-                b1      = numpy.zeros((numberOfNodesSpace+1,4),dtype = numpy.float)
+                xValues = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)
+                yValues = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)
+                zValues = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)
+                A0      = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)  # Area        (m2)
+                H       = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)  # Thickness   (m)
+                E       = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)  # Elasticity  (Pa)
+                kp      = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)
+                k1      = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)
+                k2      = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)
+                k3      = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)
+                b1      = numpy.zeros((numberOfNodesSpace+1,4),dtype = float)
                 Tp      = [0]*(numberOfNodesSpace+1)                                 # Type (Artery or Vein)
                 segment = [0]*(numberOfNodesSpace+1)
                 Sigma = 0.5                                                          # Poisson Ratio
@@ -368,25 +368,25 @@ if (initialiseFromFile):
     dA[1:numberOfNodesSpace+1,:] = init[:,3,:]
 
 # Set the boundary conditions flag
-InletBoundaryConditionType = iron.BoundaryConditionsTypes.FIXED_INLET
+InletBoundaryConditionType = oc.BoundaryConditionsTypes.FIXED_INLET
 if (nonReflecting):
-    OutletBoundaryConditionType = iron.BoundaryConditionsTypes.FIXED_NONREFLECTING
+    OutletBoundaryConditionType = oc.BoundaryConditionsTypes.FIXED_NONREFLECTING
 elif (RCRBoundaries):
-    OutletBoundaryConditionType = iron.BoundaryConditionsTypes.FIXED_CELLML
+    OutletBoundaryConditionType = oc.BoundaryConditionsTypes.FIXED_CELLML
 elif (streeBoundaries):
-    OutletBoundaryConditionType = iron.BoundaryConditionsTypes.FIXED_STREE
+    OutletBoundaryConditionType = oc.BoundaryConditionsTypes.FIXED_STREE
 else:
-    OutletBoundaryConditionType = iron.BoundaryConditionsTypes.FIXED_OUTLET
+    OutletBoundaryConditionType = oc.BoundaryConditionsTypes.FIXED_OUTLET
 
 # Set the output parameters
 # (NONE/PROGRESS/TIMING/SOLVER/MATRIX)
-DYNAMIC_SOLVER_NAVIER_STOKES_OUTPUT_TYPE    = iron.SolverOutputTypes.NONE
-NONLINEAR_SOLVER_NAVIER_STOKES_OUTPUT_TYPE  = iron.SolverOutputTypes.NONE
-NONLINEAR_SOLVER_CHARACTERISTIC_OUTPUT_TYPE = iron.SolverOutputTypes.NONE
-LINEAR_SOLVER_CHARACTERISTIC_OUTPUT_TYPE    = iron.SolverOutputTypes.NONE
-LINEAR_SOLVER_NAVIER_STOKES_OUTPUT_TYPE     = iron.SolverOutputTypes.NONE
+DYNAMIC_SOLVER_NAVIER_STOKES_OUTPUT_TYPE    = oc.SolverOutputTypes.NONE
+NONLINEAR_SOLVER_NAVIER_STOKES_OUTPUT_TYPE  = oc.SolverOutputTypes.NONE
+NONLINEAR_SOLVER_CHARACTERISTIC_OUTPUT_TYPE = oc.SolverOutputTypes.NONE
+LINEAR_SOLVER_CHARACTERISTIC_OUTPUT_TYPE    = oc.SolverOutputTypes.NONE
+LINEAR_SOLVER_NAVIER_STOKES_OUTPUT_TYPE     = oc.SolverOutputTypes.NONE
 # (NONE/TIMING/SOLVER/MATRIX)
-CMISS_SOLVER_OUTPUT_TYPE = iron.SolverOutputTypes.NONE
+CMISS_SOLVER_OUTPUT_TYPE = oc.SolverOutputTypes.NONE
 DYNAMIC_SOLVER_NAVIER_STOKES_OUTPUT_FREQUENCY = 1
 
 # Set the time parameters
@@ -423,52 +423,52 @@ couplingTolerance1D0D = 0.001
 if (RCRBoundaries or Heart):
     if (coupledAdvection):
         # Navier-Stokes solver
-        EquationsSetSubtype = iron.EquationsSetSubtypes.COUPLED1D0D_ADV_NAVIER_STOKES
+        EquationsSetSubtype = oc.EquationsSetSubtypes.COUPLED1D0D_ADV_NAVIER_STOKES
         # Characteristic solver
-        EquationsSetCharacteristicSubtype = iron.EquationsSetSubtypes.CHARACTERISTIC
+        EquationsSetCharacteristicSubtype = oc.EquationsSetSubtypes.CHARACTERISTIC
         # Advection solver
-        EquationsSetAdvectionSubtype = iron.EquationsSetSubtypes.ADVECTION
-        ProblemSubtype = iron.ProblemSubtypes.COUPLED1D0D_ADV_NAVIER_STOKES
+        EquationsSetAdvectionSubtype = oc.EquationsSetSubtypes.ADVECTION
+        ProblemSubtype = oc.ProblemSubtypes.COUPLED1D0D_ADV_NAVIER_STOKES
     else:
         # Navier-Stokes solver
-        EquationsSetSubtype = iron.EquationsSetSubtypes.COUPLED1D0D_NAVIER_STOKES
+        EquationsSetSubtype = oc.EquationsSetSubtypes.COUPLED1D0D_NAVIER_STOKES
         # Characteristic solver
-        EquationsSetCharacteristicSubtype = iron.EquationsSetSubtypes.CHARACTERISTIC
-        ProblemSubtype = iron.ProblemSubtypes.COUPLED1D0D_NAVIER_STOKES
+        EquationsSetCharacteristicSubtype = oc.EquationsSetSubtypes.CHARACTERISTIC
+        ProblemSubtype = oc.ProblemSubtypes.COUPLED1D0D_NAVIER_STOKES
 elif (streeBoundaries):
     if (coupledAdvection):
         # Navier-Stokes solver
-        EquationsSetSubtype = iron.EquationsSetSubtypes.COUPLED1D0D_ADV_NAVIER_STOKES
+        EquationsSetSubtype = oc.EquationsSetSubtypes.COUPLED1D0D_ADV_NAVIER_STOKES
         # Characteristic solver
-        EquationsSetCharacteristicSubtype = iron.EquationsSetSubtypes.CHARACTERISTIC
+        EquationsSetCharacteristicSubtype = oc.EquationsSetSubtypes.CHARACTERISTIC
         # Stree solver
-        EquationsSetStreeSubtype = iron.EquationsSetSubtypes.STREE1D0D_ADV
+        EquationsSetStreeSubtype = oc.EquationsSetSubtypes.STREE1D0D_ADV
         # Advection solver
-        EquationsSetAdvectionSubtype = iron.EquationsSetSubtypes.ADVECTION
-        ProblemSubtype = iron.ProblemSubtypes.STREE1D0DAdv_NAVIER_STOKES
+        EquationsSetAdvectionSubtype = oc.EquationsSetSubtypes.ADVECTION
+        ProblemSubtype = oc.ProblemSubtypes.STREE1D0DAdv_NAVIER_STOKES
     else:
         # Navier-Stokes solver
-        EquationsSetSubtype = iron.EquationsSetSubtypes.COUPLED1D0D_NAVIER_STOKES
+        EquationsSetSubtype = oc.EquationsSetSubtypes.COUPLED1D0D_NAVIER_STOKES
         # Characteristic solver
-        EquationsSetCharacteristicSubtype = iron.EquationsSetSubtypes.CHARACTERISTIC
+        EquationsSetCharacteristicSubtype = oc.EquationsSetSubtypes.CHARACTERISTIC
         # Stree solver
-        EquationsSetStreeSubtype = iron.EquationsSetSubtypes.STREE1D0D
-        ProblemSubtype = iron.ProblemSubtypes.STREE1D0D
+        EquationsSetStreeSubtype = oc.EquationsSetSubtypes.STREE1D0D
+        ProblemSubtype = oc.ProblemSubtypes.STREE1D0D
 else:
     if (coupledAdvection):
         # Navier-Stokes solver
-        EquationsSetSubtype = iron.EquationsSetSubtypes.OnedTransientAdv_NAVIER_STOKES
+        EquationsSetSubtype = oc.EquationsSetSubtypes.OnedTransientAdv_NAVIER_STOKES
         # Characteristic solver
-        EquationsSetCharacteristicSubtype = iron.EquationsSetSubtypes.CHARACTERISTIC
+        EquationsSetCharacteristicSubtype = oc.EquationsSetSubtypes.CHARACTERISTIC
         # Advection solver
-        EquationsSetAdvectionSubtype = iron.EquationsSetSubtypes.ADVECTION
-        ProblemSubtype = iron.ProblemSubtypes.TRANSIENT1D_ADV_NAVIER_STOKES
+        EquationsSetAdvectionSubtype = oc.EquationsSetSubtypes.ADVECTION
+        ProblemSubtype = oc.ProblemSubtypes.TRANSIENT1D_ADV_NAVIER_STOKES
     else:
         # Navier-Stokes solver
-        EquationsSetSubtype = iron.EquationsSetSubtypes.TRANSIENT1D_NAVIER_STOKES
+        EquationsSetSubtype = oc.EquationsSetSubtypes.TRANSIENT1D_NAVIER_STOKES
         # Characteristic solver
-        EquationsSetCharacteristicSubtype = iron.EquationsSetSubtypes.CHARACTERISTIC
-        ProblemSubtype = iron.ProblemSubtypes.TRANSIENT1D_NAVIER_STOKES
+        EquationsSetCharacteristicSubtype = oc.EquationsSetSubtypes.CHARACTERISTIC
+        ProblemSubtype = oc.ProblemSubtypes.TRANSIENT1D_NAVIER_STOKES
 
 #================================================================================================================================
 #  Coordinate System
@@ -478,7 +478,7 @@ if (ProgressDiagnostics):
     print(" == >> COORDINATE SYSTEM << == ")
 
 # Start the creation of RC coordinate system
-CoordinateSystem = iron.CoordinateSystem()
+CoordinateSystem = oc.CoordinateSystem()
 CoordinateSystem.CreateStart(CoordinateSystemUserNumber,context)
 CoordinateSystem.DimensionSet(3)
 CoordinateSystem.CreateFinish()
@@ -491,7 +491,7 @@ if (ProgressDiagnostics):
     print(" == >> REGION << == ")
 
 # Start the creation of SPACE region
-Region = iron.Region()
+Region = oc.Region()
 Region.CreateStart(RegionUserNumber,worldRegion)
 Region.label = "ArterialSystem"
 Region.coordinateSystem = CoordinateSystem
@@ -499,7 +499,7 @@ Region.CreateFinish()
 
 if (streeBoundaries):
     # Start the creation of TIME region
-    RegionStree = iron.Region()
+    RegionStree = oc.Region()
     RegionStree.CreateStart(RegionUserNumber2,worldRegion)
     RegionStree.label = "StructuredTree"
     RegionStree.coordinateSystem = CoordinateSystem
@@ -514,22 +514,22 @@ if (ProgressDiagnostics):
 
 # Start the creation of SPACE bases
 basisXiGaussSpace = 3
-BasisSpace = iron.Basis()
+BasisSpace = oc.Basis()
 BasisSpace.CreateStart(BasisUserNumberSpace,context)
-BasisSpace.type = iron.BasisTypes.LAGRANGE_HERMITE_TP
+BasisSpace.type = oc.BasisTypes.LAGRANGE_HERMITE_TP
 BasisSpace.numberOfXi = numberOfDimensions
-BasisSpace.interpolationXi = [iron.BasisInterpolationSpecifications.QUADRATIC_LAGRANGE]
+BasisSpace.interpolationXi = [oc.BasisInterpolationSpecifications.QUADRATIC_LAGRANGE]
 BasisSpace.quadratureNumberOfGaussXi = [basisXiGaussSpace]
 BasisSpace.CreateFinish()
 
 if (streeBoundaries):
     # Start the creation of TIME bases
     basisXiGaussSpace = 3
-    BasisTime = iron.Basis()
+    BasisTime = oc.Basis()
     BasisTime.CreateStart(BasisUserNumberTime,context)
-    BasisTime.type = iron.BasisTypes.LAGRANGE_HERMITE_TP
+    BasisTime.type = oc.BasisTypes.LAGRANGE_HERMITE_TP
     BasisTime.numberOfXi = numberOfDimensions
-    BasisTime.interpolationXi = [iron.BasisInterpolationSpecifications.LINEAR_LAGRANGE]
+    BasisTime.interpolationXi = [oc.BasisInterpolationSpecifications.LINEAR_LAGRANGE]
     BasisTime.quadratureNumberOfGaussXi = [basisXiGaussSpace]
     BasisTime.CreateFinish()
 
@@ -541,12 +541,12 @@ if (ProgressDiagnostics):
     print(" == >> NODES << == ")
 
 # Start the creation of mesh nodes
-Nodes = iron.Nodes()
+Nodes = oc.Nodes()
 Nodes.CreateStart(Region,totalNumberOfNodes)
 Nodes.CreateFinish()
 
 if (streeBoundaries):
-    NodesStree = iron.Nodes()
+    NodesStree = oc.Nodes()
     NodesStree.CreateStart(RegionStree,timePeriod+1)
     NodesStree.CreateFinish()
 
@@ -558,15 +558,15 @@ if (ProgressDiagnostics):
     print(" == >> MESH << == ")
 
 # Start the creation of SPACE mesh
-Mesh = iron.Mesh()
+Mesh = oc.Mesh()
 Mesh.CreateStart(MeshUserNumber,Region,numberOfDimensions)
 Mesh.NumberOfElementsSet(totalNumberOfElements)
 if (coupledAdvection):
     meshNumberOfComponents = 2
     Mesh.NumberOfComponentsSet(meshNumberOfComponents)
     # Specify the mesh components
-    MeshElementsSpace = iron.MeshElements()
-    MeshElementsConc  = iron.MeshElements()
+    MeshElementsSpace = oc.MeshElements()
+    MeshElementsConc  = oc.MeshElements()
     meshComponentNumberSpace = 1
     meshComponentNumberConc  = 2
 else:
@@ -574,7 +574,7 @@ else:
     # Specify the mesh components
     Mesh.NumberOfComponentsSet(meshNumberOfComponents)
     # Specify the mesh components
-    MeshElementsSpace = iron.MeshElements()
+    MeshElementsSpace = oc.MeshElements()
     meshComponentNumberSpace = 1
 
 #------------------
@@ -623,12 +623,12 @@ Mesh.CreateFinish()
 
 if (streeBoundaries):
     # Start the creation of TIME mesh
-    MeshTime = iron.Mesh()
+    MeshTime = oc.Mesh()
     MeshTime.CreateStart(MeshUserNumber2,RegionStree,numberOfDimensions)
     MeshTime.NumberOfElementsSet(timePeriod)
     MeshTime.NumberOfComponentsSet(1)
     # Specify the mesh components
-    MeshElementsTime = iron.MeshElements()
+    MeshElementsTime = oc.MeshElements()
     meshComponentNumberTime = 1
     MeshElementsTime.CreateStart(MeshTime,meshComponentNumberTime,BasisTime)
     for elemIdx in range(1,timePeriod+1):
@@ -644,18 +644,18 @@ if (ProgressDiagnostics):
     print(" == >> MESH DECOMPOSITION << == ")
 
 # Start the creation of SPACE mesh decomposition
-Decomposition = iron.Decomposition()
+Decomposition = oc.Decomposition()
 Decomposition.CreateStart(DecompositionUserNumber,Mesh)
-Decomposition.TypeSet(iron.DecompositionTypes.CALCULATED)
+Decomposition.TypeSet(oc.DecompositionTypes.CALCULATED)
 Decomposition.CreateFinish()
 
 #------------------
 
 if (streeBoundaries):
     # Start the creation of TIME mesh decomposition
-    DecompositionTime = iron.Decomposition()
+    DecompositionTime = oc.Decomposition()
     DecompositionTime.CreateStart(DecompositionUserNumber2,MeshTime)
-    DecompositionTime.TypeSet(iron.DecompositionTypes.CALCULATED)
+    DecompositionTime.TypeSet(oc.DecompositionTypes.CALCULATED)
     DecompositionTime.NumberOfDomainsSet(numberOfComputationalNodes)
     DecompositionTime.CreateFinish()
 
@@ -666,7 +666,7 @@ if (streeBoundaries):
 if (ProgressDiagnostics):
     print(" == >> DECOMPOSER << == ")
 
-decomposer = iron.Decomposer()
+decomposer = oc.Decomposer()
 decomposer.CreateStart(DecomposerUserNumber,worldRegion,worldWorkGroup)
 decompositionIndex = decomposer.DecompositionAdd(Decomposition)
 decomposer.CreateFinish()
@@ -675,7 +675,7 @@ decomposer.CreateFinish()
 
 if (streeBoundaries):
     # Start the creation of TIME mesh decomposition
-    decomposerTime = iron.Decomposer()
+    decomposerTime = oc.Decomposer()
     decomposerTime.CreateStart(DecomposerUserNumber2,worldRegion,worldWorkGroup)
     decomposition2Index = decomposerTime.DecompositionAdd(DecompositionTime)
     decomposerTime.CreateFinish()
@@ -688,16 +688,16 @@ if (ProgressDiagnostics):
     print(" == >> GEOMETRIC FIELD << == ")
 
 # Start the creation of SPACE geometric field
-GeometricField = iron.Field()
+GeometricField = oc.Field()
 GeometricField.CreateStart(GeometricFieldUserNumber,Region)
 GeometricField.NumberOfVariablesSet(1)
-GeometricField.VariableLabelSet(iron.FieldVariableTypes.U,'Coordinates')
-GeometricField.TypeSet = iron.FieldTypes.GEOMETRIC
+GeometricField.VariableLabelSet(oc.FieldVariableTypes.U,'Coordinates')
+GeometricField.TypeSet = oc.FieldTypes.GEOMETRIC
 GeometricField.decomposition = Decomposition
-GeometricField.ScalingTypeSet = iron.FieldScalingTypes.NONE
+GeometricField.ScalingTypeSet = oc.FieldScalingTypes.NONE
 # Set the mesh component to be used by the geometric field components
 for componentNumber in range(1,CoordinateSystem.dimension+1):
-    GeometricField.ComponentMeshComponentSet(iron.FieldVariableTypes.U,componentNumber,
+    GeometricField.ComponentMeshComponentSet(oc.FieldVariableTypes.U,componentNumber,
      meshComponentNumberSpace)
 GeometricField.CreateFinish()
 
@@ -706,11 +706,11 @@ versionIdx = 1
 for nodeIdx in range(1,numberOfNodesSpace+1):
     nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
     if (nodeDomain == computationalNodeNumber):
-        GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+        GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
          versionIdx,derivIdx,nodeIdx,1,xValues[nodeIdx][0])
-        GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+        GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
          versionIdx,derivIdx,nodeIdx,2,yValues[nodeIdx][0])
-        GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+        GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
          versionIdx,derivIdx,nodeIdx,3,zValues[nodeIdx][0])
 # Set the geometric field for bifurcation
 for bifIdx in range (1,numberOfBifurcations+1):
@@ -718,11 +718,11 @@ for bifIdx in range (1,numberOfBifurcations+1):
     nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
     if (nodeDomain == computationalNodeNumber):
         for versionNumber in range(2,4):
-            GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionNumber,derivIdx,nodeIdx,1,xValues[nodeIdx][versionNumber-1])
-            GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionNumber,derivIdx,nodeIdx,2,yValues[nodeIdx][versionNumber-1])
-            GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionNumber,derivIdx,nodeIdx,3,zValues[nodeIdx][versionNumber-1])
 # Set the geometric field for trifurcation
 for trifIdx in range (1,numberOfTrifurcations+1):
@@ -730,31 +730,31 @@ for trifIdx in range (1,numberOfTrifurcations+1):
     nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
     if nodeDomain == computationalNodeNumber:
         for versionNumber in range(2,5):
-            GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionNumber,derivIdx,nodeIdx,1,xValues[nodeIdx][versionNumber-1])
-            GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionNumber,derivIdx,nodeIdx,2,yValues[nodeIdx][versionNumber-1])
-            GeometricField.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionNumber,derivIdx,nodeIdx,3,zValues[nodeIdx][versionNumber-1])
 
 # Finish the parameter update
-GeometricField.ParameterSetUpdateStart(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES)
-GeometricField.ParameterSetUpdateFinish(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES)
+GeometricField.ParameterSetUpdateStart(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES)
+GeometricField.ParameterSetUpdateFinish(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES)
 
 #------------------
 
 if (streeBoundaries):
     # Start the creation of TIME geometric field
-    GeometricFieldTime = iron.Field()
+    GeometricFieldTime = oc.Field()
     GeometricFieldTime.CreateStart(GeometricFieldUserNumber2,RegionStree)
     GeometricFieldTime.NumberOfVariablesSet(1)
-    GeometricFieldTime.VariableLabelSet(iron.FieldVariableTypes.U,'Time')
-    GeometricFieldTime.TypeSet = iron.FieldTypes.GEOMETRIC
+    GeometricFieldTime.VariableLabelSet(oc.FieldVariableTypes.U,'Time')
+    GeometricFieldTime.TypeSet = oc.FieldTypes.GEOMETRIC
     GeometricFieldTime.decomposition = DecompositionTime
-    GeometricFieldTime.ScalingTypeSet = iron.FieldScalingTypes.NONE
+    GeometricFieldTime.ScalingTypeSet = oc.FieldScalingTypes.NONE
     # Set the mesh component to be used by the geometric field components
     for componentNumber in range(1,CoordinateSystem.dimension+1):
-        GeometricFieldTime.ComponentMeshComponentSet(iron.FieldVariableTypes.U,
+        GeometricFieldTime.ComponentMeshComponentSet(oc.FieldVariableTypes.U,
          componentNumber,meshComponentNumberTime)
     GeometricFieldTime.CreateFinish()
 
@@ -767,10 +767,10 @@ if (ProgressDiagnostics):
 
 # Create the equations set for STREE
 if (streeBoundaries):
-    EquationsSetStree = iron.EquationsSet()
-    EquationsSetFieldStree = iron.Field()
-    StreeEquationsSetSpecification = [iron.EquationsSetClasses.FLUID_MECHANICS,
-    					iron.EquationsSetTypes.STREE_EQUATION,
+    EquationsSetStree = oc.EquationsSet()
+    EquationsSetFieldStree = oc.Field()
+    StreeEquationsSetSpecification = [oc.EquationsSetClasses.FLUID_MECHANICS,
+    					oc.EquationsSetTypes.STREE_EQUATION,
     					EquationsSetStreeSubtype]
     # Set the equations set to be a dynamic linear problem
     EquationsSetStree.CreateStart(EquationsSetUserNumberStree,RegionStree,GeometricFieldTime,
@@ -780,22 +780,22 @@ if (streeBoundaries):
 #------------------
 
 # Create the equations set for CHARACTERISTIC
-EquationsSetCharacteristic = iron.EquationsSet()
-EquationsSetFieldCharacteristic = iron.Field()
+EquationsSetCharacteristic = oc.EquationsSet()
+EquationsSetFieldCharacteristic = oc.Field()
 # Set the equations set to be a static nonlinear problem
-CharacteristicEquationsSetSpecification = [iron.EquationsSetClasses.FLUID_MECHANICS,
-					iron.EquationsSetTypes.CHARACTERISTIC_EQUATION,
+CharacteristicEquationsSetSpecification = [oc.EquationsSetClasses.FLUID_MECHANICS,
+					oc.EquationsSetTypes.CHARACTERISTIC_EQUATION,
 					EquationsSetCharacteristicSubtype]
 EquationsSetCharacteristic.CreateStart(EquationsSetUserNumberCharacteristic,Region,GeometricField,
     CharacteristicEquationsSetSpecification,EquationsSetFieldUserNumberCharacteristic,EquationsSetFieldCharacteristic)
 EquationsSetCharacteristic.CreateFinish()
 
 # Create the equations set for NAVIER-STOKES
-EquationsSetNavierStokes = iron.EquationsSet()
-EquationsSetFieldNavierStokes = iron.Field()
+EquationsSetNavierStokes = oc.EquationsSet()
+EquationsSetFieldNavierStokes = oc.Field()
 # Set the equations set to be a dynamic nonlinear problem
-NavierStokesEquationsSetSpecification = [iron.EquationsSetClasses.FLUID_MECHANICS,
-				      iron.EquationsSetTypes.NAVIER_STOKES_EQUATION,
+NavierStokesEquationsSetSpecification = [oc.EquationsSetClasses.FLUID_MECHANICS,
+				      oc.EquationsSetTypes.NAVIER_STOKES_EQUATION,
 				      EquationsSetSubtype]
 EquationsSetNavierStokes.CreateStart(EquationsSetUserNumberNavierStokes,Region,GeometricField,
     NavierStokesEquationsSetSpecification,EquationsSetFieldUserNumberNavierStokes,EquationsSetFieldNavierStokes)
@@ -805,11 +805,11 @@ EquationsSetNavierStokes.CreateFinish()
 
 # Create the equations set for ADVECTION
 if (coupledAdvection):
-    EquationsSetAdvection = iron.EquationsSet()
-    EquationsSetFieldAdvection = iron.Field()
+    EquationsSetAdvection = oc.EquationsSet()
+    EquationsSetFieldAdvection = oc.Field()
     # Set the equations set to be a dynamic linear problem
-    AdvectionEquationsSetSpecification = [iron.EquationsSetClasses.CLASSICAL_FIELD,
-    				       iron.EquationsSetTypes.ADVECTION_EQUATION,
+    AdvectionEquationsSetSpecification = [oc.EquationsSetClasses.CLASSICAL_FIELD,
+    				       oc.EquationsSetTypes.ADVECTION_EQUATION,
 				       EquationsSetAdvectionSubtype]
     EquationsSetAdvection.CreateStart(EquationsSetUserNumberAdvection,Region,GeometricField,
         AdvectionEquationsSetSpecification,EquationsSetFieldUserNumberAdvection,EquationsSetFieldAdvection)
@@ -825,41 +825,41 @@ if (ProgressDiagnostics):
 # STREE
 if (streeBoundaries):
     # Create the equations set dependent field variables
-    DependentFieldStree = iron.Field()
+    DependentFieldStree = oc.Field()
     EquationsSetStree.DependentCreateStart(DependentFieldUserNumber3,DependentFieldStree)
-    DependentFieldStree.VariableLabelSet(iron.FieldVariableTypes.U,'Stree 1st Variable')
-    DependentFieldStree.VariableLabelSet(iron.FieldVariableTypes.DELUDELN,'Stree 2nd Variable')
+    DependentFieldStree.VariableLabelSet(oc.FieldVariableTypes.U,'Stree 1st Variable')
+    DependentFieldStree.VariableLabelSet(oc.FieldVariableTypes.DELUDELN,'Stree 2nd Variable')
     EquationsSetStree.DependentCreateFinish()
 
 #------------------
 
 # CHARACTERISTIC
 # Create the equations set dependent field variables
-DependentFieldNavierStokes = iron.Field()
+DependentFieldNavierStokes = oc.Field()
 EquationsSetCharacteristic.DependentCreateStart(DependentFieldUserNumber,DependentFieldNavierStokes)
-DependentFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.U,'General')
-DependentFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.DELUDELN,'Derivatives')
-DependentFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.V,'Characteristics')
+DependentFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.U,'General')
+DependentFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.DELUDELN,'Derivatives')
+DependentFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.V,'Characteristics')
 if (RCRBoundaries or Heart):
-    DependentFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.U1,'CellML Q and P')
-DependentFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.U2,'Pressure')
+    DependentFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.U1,'CellML Q and P')
+DependentFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.U2,'Pressure')
 # Set the mesh component to be used by the field components.
 # Flow & Area
-DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.U,1,meshComponentNumberSpace)
-DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.U,2,meshComponentNumberSpace)
+DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.U,1,meshComponentNumberSpace)
+DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.U,2,meshComponentNumberSpace)
 # Derivatives
-DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.DELUDELN,1,meshComponentNumberSpace)
-DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.DELUDELN,2,meshComponentNumberSpace)
+DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.DELUDELN,1,meshComponentNumberSpace)
+DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.DELUDELN,2,meshComponentNumberSpace)
 # Riemann
-DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.V,1,meshComponentNumberSpace)
-DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.V,2,meshComponentNumberSpace)
+DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.V,1,meshComponentNumberSpace)
+DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.V,2,meshComponentNumberSpace)
 # qCellML & pCellml
 if (RCRBoundaries or Heart):
-    DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.U1,1,meshComponentNumberSpace)
-    DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.U1,2,meshComponentNumberSpace)
+    DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.U1,1,meshComponentNumberSpace)
+    DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.U1,2,meshComponentNumberSpace)
 # Pressure
-DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.U2,1,meshComponentNumberSpace)
-DependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.U2,2,meshComponentNumberSpace)
+DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.U2,1,meshComponentNumberSpace)
+DependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.U2,2,meshComponentNumberSpace)
 
 EquationsSetCharacteristic.DependentCreateFinish()
 
@@ -869,7 +869,7 @@ EquationsSetCharacteristic.DependentCreateFinish()
 EquationsSetNavierStokes.DependentCreateStart(DependentFieldUserNumber,DependentFieldNavierStokes)
 EquationsSetNavierStokes.DependentCreateFinish()
 
-DependentFieldNavierStokes.ParameterSetCreate(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.PREVIOUS_VALUES)
+DependentFieldNavierStokes.ParameterSetCreate(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.PREVIOUS_VALUES)
 
 # Initialise the dependent field variables
 for nodeIdx in range (1,numberOfNodesSpace+1):
@@ -883,39 +883,39 @@ for nodeIdx in range (1,numberOfNodesSpace+1):
             versions = [1]
         for versionIdx in versions:
             # U variables
-            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,1,Q[nodeIdx][versionIdx-1])
-            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,2,A[nodeIdx][versionIdx-1])
-            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.PREVIOUS_VALUES,
+            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.PREVIOUS_VALUES,
              versionIdx,derivIdx,nodeIdx,1,Q[nodeIdx][versionIdx-1])
-            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.PREVIOUS_VALUES,
+            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.PREVIOUS_VALUES,
              versionIdx,derivIdx,nodeIdx,2,A[nodeIdx][versionIdx-1])
             # delUdelN variables
-            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.DELUDELN,iron.FieldParameterSetTypes.VALUES,
+            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.DELUDELN,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,1,dQ[nodeIdx][versionIdx-1])
-            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.DELUDELN,iron.FieldParameterSetTypes.VALUES,
+            DependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.DELUDELN,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,2,dA[nodeIdx][versionIdx-1])
 
 # revert default version to 1
 versionIdx = 1
 
 # Finish the parameter update
-DependentFieldNavierStokes.ParameterSetUpdateStart(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES)
-DependentFieldNavierStokes.ParameterSetUpdateFinish(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES)
+DependentFieldNavierStokes.ParameterSetUpdateStart(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES)
+DependentFieldNavierStokes.ParameterSetUpdateFinish(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES)
 
 #------------------
 
 # ADVECTION
 if (coupledAdvection):
     # Create the equations set dependent field variables
-    DependentFieldAdvection = iron.Field()
+    DependentFieldAdvection = oc.Field()
     EquationsSetAdvection.DependentCreateStart(DependentFieldUserNumber2,DependentFieldAdvection)
-    DependentFieldAdvection.VariableLabelSet(iron.FieldVariableTypes.U,'Concentration')
-    DependentFieldAdvection.VariableLabelSet(iron.FieldVariableTypes.DELUDELN,'Deriv')
+    DependentFieldAdvection.VariableLabelSet(oc.FieldVariableTypes.U,'Concentration')
+    DependentFieldAdvection.VariableLabelSet(oc.FieldVariableTypes.DELUDELN,'Deriv')
     # Set the mesh component to be used by the field components.
-    DependentFieldAdvection.ComponentMeshComponentSet(iron.FieldVariableTypes.U,1,meshComponentNumberConc)
-    DependentFieldAdvection.ComponentMeshComponentSet(iron.FieldVariableTypes.DELUDELN,1,meshComponentNumberConc)
+    DependentFieldAdvection.ComponentMeshComponentSet(oc.FieldVariableTypes.U,1,meshComponentNumberConc)
+    DependentFieldAdvection.ComponentMeshComponentSet(oc.FieldVariableTypes.DELUDELN,1,meshComponentNumberConc)
     EquationsSetAdvection.DependentCreateFinish()
 
     # Initialise the dependent field variables
@@ -923,12 +923,12 @@ if (coupledAdvection):
         nodeIdx = inputNodeNumber[inputIdx-1]
         nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberConc)
         if (nodeDomain == computationalNodeNumber):
-            DependentFieldAdvection.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            DependentFieldAdvection.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,1,0.0)
 
     # Finish the parameter update
-    DependentFieldAdvection.ParameterSetUpdateStart(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES)
-    DependentFieldAdvection.ParameterSetUpdateFinish(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES)
+    DependentFieldAdvection.ParameterSetUpdateStart(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES)
+    DependentFieldAdvection.ParameterSetUpdateFinish(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES)
 
 #================================================================================================================================
 #  Materials Field
@@ -940,23 +940,23 @@ if (ProgressDiagnostics):
 # STREE
 if (streeBoundaries):
     # Create the equations set materials field variables
-    MaterialsFieldStree = iron.Field()
+    MaterialsFieldStree = oc.Field()
     EquationsSetStree.MaterialsCreateStart(MaterialsFieldUserNumber2,MaterialsFieldStree)
-    MaterialsFieldStree.VariableLabelSet(iron.FieldVariableTypes.U,'Stree Impedance')
-    MaterialsFieldStree.VariableLabelSet(iron.FieldVariableTypes.V,'Stree Flow')
+    MaterialsFieldStree.VariableLabelSet(oc.FieldVariableTypes.U,'Stree Impedance')
+    MaterialsFieldStree.VariableLabelSet(oc.FieldVariableTypes.V,'Stree Flow')
     EquationsSetStree.MaterialsCreateFinish()
 
 #------------------
 
 # CHARACTERISTIC
 # Create the equations set materials field variables
-MaterialsFieldNavierStokes = iron.Field()
+MaterialsFieldNavierStokes = oc.Field()
 EquationsSetCharacteristic.MaterialsCreateStart(MaterialsFieldUserNumber,MaterialsFieldNavierStokes)
-MaterialsFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.U,'MaterialsConstants')
-MaterialsFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.V,'MaterialsVariables')
+MaterialsFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.U,'MaterialsConstants')
+MaterialsFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.V,'MaterialsVariables')
 # Set the mesh component to be used by the field components.
 for componentNumber in range(1,4):
-    MaterialsFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.V,componentNumber,meshComponentNumberSpace)
+    MaterialsFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.V,componentNumber,meshComponentNumberSpace)
 EquationsSetCharacteristic.MaterialsCreateFinish()
 
 # NAVIER-STOKES
@@ -964,24 +964,24 @@ EquationsSetNavierStokes.MaterialsCreateStart(MaterialsFieldUserNumber,Materials
 EquationsSetNavierStokes.MaterialsCreateFinish()
 
 # Set the materials field constants
-MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
- iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberMu,Mu)
-MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
- iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberRho,Rho)
-MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
- iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberAlpha,Alpha)
-MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
- iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberPext,Pext)
-MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
- iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberLs,Ls)
-MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
- iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberTs,Ts)
-MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
- iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberMs,Ms)
-MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
- iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberG0,G0)
-#MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,
-# iron.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberFr,Fr)
+MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+ oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberMu,Mu)
+MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+ oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberRho,Rho)
+MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+ oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberAlpha,Alpha)
+MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+ oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberPext,Pext)
+MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+ oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberLs,Ls)
+MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+ oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberTs,Ts)
+MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+ oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberMs,Ms)
+MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+ oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberG0,G0)
+#MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
+# oc.FieldParameterSetTypes.VALUES,MaterialsFieldUserNumberFr,Fr)
 
 # Initialise the materials field variables (A0,E,H,kp,k1,k2,k3,b1)
 bifIdx = 0
@@ -996,38 +996,38 @@ for nodeIdx in range(1,numberOfNodesSpace+1,1):
         else:
             versions = [1]
         for versionIdx in versions:
-            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES,
+            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,MaterialsFieldUserNumberA0,A0[nodeIdx][versionIdx-1])
-            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES,
+            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,MaterialsFieldUserNumberE,E[nodeIdx][versionIdx-1])
-            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES,
+            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,MaterialsFieldUserNumberH,H[nodeIdx][versionIdx-1])
-#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES,
+#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES,
 #             versionIdx,derivIdx,nodeIdx,MaterialsFieldUserNumberkp,kp[nodeIdx][versionIdx-1])
-#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES,
+#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES,
 #             versionIdx,derivIdx,nodeIdx,MaterialsFieldUserNumberk1,k1[nodeIdx][versionIdx-1])
-#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES,
+#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES,
 #             versionIdx,derivIdx,nodeIdx,MaterialsFieldUserNumberk2,k2[nodeIdx][versionIdx-1])
-#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES,
+#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES,
 #             versionIdx,derivIdx,nodeIdx,MaterialsFieldUserNumberk3,k3[nodeIdx][versionIdx-1])
-#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES,
+#            MaterialsFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES,
 #             versionIdx,derivIdx,nodeIdx,MaterialsFieldUserNumberb1,b1[nodeIdx][versionIdx-1])
 
 # Finish the parameter update
-MaterialsFieldNavierStokes.ParameterSetUpdateStart(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES)
-MaterialsFieldNavierStokes.ParameterSetUpdateFinish(iron.FieldVariableTypes.V,iron.FieldParameterSetTypes.VALUES)
+MaterialsFieldNavierStokes.ParameterSetUpdateStart(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES)
+MaterialsFieldNavierStokes.ParameterSetUpdateFinish(oc.FieldVariableTypes.V,oc.FieldParameterSetTypes.VALUES)
 
 #------------------
 
 # ADVECTION
 if (coupledAdvection):
     # Create the equations set materials field variables
-    MaterialsFieldAdvection = iron.Field()
+    MaterialsFieldAdvection = oc.Field()
     EquationsSetAdvection.MaterialsCreateStart(MaterialsFieldUserNumber2,MaterialsFieldAdvection)
-    MaterialsFieldAdvection.VariableLabelSet(iron.FieldVariableTypes.U,'Diffusivity')
+    MaterialsFieldAdvection.VariableLabelSet(oc.FieldVariableTypes.U,'Diffusivity')
     EquationsSetAdvection.MaterialsCreateFinish()
     # Set the materials field constant
-    MaterialsFieldAdvection.ComponentValuesInitialiseDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+    MaterialsFieldAdvection.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
      MaterialsFieldUserNumberD,D)
 
 #================================================================================================================================
@@ -1039,11 +1039,11 @@ if (ProgressDiagnostics):
 
 # CHARACTERISTIC
 # Create the equations set independent field variables
-IndependentFieldNavierStokes = iron.Field()
+IndependentFieldNavierStokes = oc.Field()
 EquationsSetCharacteristic.IndependentCreateStart(IndependentFieldUserNumber,IndependentFieldNavierStokes)
-IndependentFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.U,'Normal Wave Direction')
+IndependentFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.U,'Normal Wave Direction')
 # Set the mesh component to be used by the field components.
-IndependentFieldNavierStokes.ComponentMeshComponentSet(iron.FieldVariableTypes.U,1,meshComponentNumberSpace)
+IndependentFieldNavierStokes.ComponentMeshComponentSet(oc.FieldVariableTypes.U,1,meshComponentNumberSpace)
 EquationsSetCharacteristic.IndependentCreateFinish()
 
 #------------------
@@ -1058,11 +1058,11 @@ for nodeIdx in range(1,numberOfNodesSpace+1,1):
     if (nodeDomain == computationalNodeNumber):
         if (Tp[nodeIdx] == 'Artery'):
             # Incoming
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,compIdx,1.0)
         elif(Tp[nodeIdx] == 'Vein'):
             # Outgoing
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,compIdx,-1.0)
 
 # Set the normal wave direction for bifurcation
@@ -1072,21 +1072,21 @@ for bifIdx in range (1,numberOfBifurcations+1):
     if (nodeDomain == computationalNodeNumber):
         if (Tp[nodeIdx] == 'Artery'):
             # Incoming(parent)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              1,derivIdx,nodeIdx,compIdx,1.0)
             # Outgoing(branches)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              2,derivIdx,nodeIdx,compIdx,-1.0)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              3,derivIdx,nodeIdx,compIdx,-1.0)
         elif(Tp[nodeIdx] == 'Vein'):
             # Outgoing(parent)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              1,derivIdx,nodeIdx,compIdx,-1.0)
             # Incoming(branches)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              2,derivIdx,nodeIdx,compIdx,1.0)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              3,derivIdx,nodeIdx,compIdx,1.0)
 
 # Set the normal wave direction for trifurcation
@@ -1096,37 +1096,37 @@ for trifIdx in range (1,numberOfTrifurcations+1):
     if (nodeDomain == computationalNodeNumber):
         if (Tp[nodeIdx] == 'Artery'):
             # Incoming(parent)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              1,derivIdx,nodeIdx,compIdx,1.0)
             # Outgoing(branches)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              2,derivIdx,nodeIdx,compIdx,-1.0)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              3,derivIdx,nodeIdx,compIdx,-1.0)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              4,derivIdx,nodeIdx,compIdx,-1.0)
         elif (Tp[nodeIdx] == 'Vein'):
             # Outgoing(parent)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              1,derivIdx,nodeIdx,compIdx,-1.0)
             # Incoming(branches)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              2,derivIdx,nodeIdx,compIdx,1.0)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              3,derivIdx,nodeIdx,compIdx,1.0)
-            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            IndependentFieldNavierStokes.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              4,derivIdx,nodeIdx,compIdx,1.0)
 
 # Finish the parameter update
-IndependentFieldNavierStokes.ParameterSetUpdateStart(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES)
-IndependentFieldNavierStokes.ParameterSetUpdateFinish(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES)
+IndependentFieldNavierStokes.ParameterSetUpdateStart(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES)
+IndependentFieldNavierStokes.ParameterSetUpdateFinish(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES)
 
 #------------------
 
 # ADVECTION
 if (coupledAdvection):
     # Create the equations set independent field variables
-    IndependentFieldAdvection = iron.Field()
+    IndependentFieldAdvection = oc.Field()
     EquationsSetAdvection.IndependentCreateStart(DependentFieldUserNumber,DependentFieldNavierStokes)
     EquationsSetAdvection.IndependentCreateFinish()
 
@@ -1138,10 +1138,10 @@ if (HeartInput):
     if (ProgressDiagnostics):
         print(" == >> ANALYTIC FIELD << == ")
 
-    AnalyticFieldNavierStokes = iron.Field()
-    EquationsSetNavierStokes.AnalyticCreateStart(iron.NavierStokesAnalyticFunctionTypes.FLOWRATE_AORTA,AnalyticFieldUserNumber,
+    AnalyticFieldNavierStokes = oc.Field()
+    EquationsSetNavierStokes.AnalyticCreateStart(oc.NavierStokesAnalyticFunctionTypes.FLOWRATE_AORTA,AnalyticFieldUserNumber,
      AnalyticFieldNavierStokes) # SplintFromFile,FlowrateAorta,FlowrateOlufsen
-    AnalyticFieldNavierStokes.VariableLabelSet(iron.FieldVariableTypes.U,'Input Flow')
+    AnalyticFieldNavierStokes.VariableLabelSet(oc.FieldVariableTypes.U,'Input Flow')
     EquationsSetNavierStokes.AnalyticCreateFinish()
 else:
     Q[1][0]=0.0
@@ -1172,7 +1172,7 @@ if (RCRBoundaries):
     pCellMLComponent = 2
 
     # Create the CellML environment
-    CellML = iron.CellML()
+    CellML = oc.CellML()
     CellML.CreateStart(CellMLUserNumber,Region)
     # Number of CellML models
     CellMLModelIndex = [0]*(numberOfTerminalNodes+1)
@@ -1201,17 +1201,17 @@ if (RCRBoundaries):
             # Now we can set up the field variable component <--> CellML model variable mappings.
             # Map the OpenCMISS boundary flow rate values --> CellML
             # Q is component 1 of the DependentField
-            CellML.CreateFieldToCellMLMap(DependentFieldNavierStokes,iron.FieldVariableTypes.U,1,
-             iron.FieldParameterSetTypes.VALUES,CellMLModelIndex[terminalIdx],"Circuit/Qin",iron.FieldParameterSetTypes.VALUES)
+            CellML.CreateFieldToCellMLMap(DependentFieldNavierStokes,oc.FieldVariableTypes.U,1,
+             oc.FieldParameterSetTypes.VALUES,CellMLModelIndex[terminalIdx],"Circuit/Qin",oc.FieldParameterSetTypes.VALUES)
             # Map the returned pressure values from CellML --> CMISS
             # pCellML is component 1 of the Dependent field U1 variable
-            CellML.CreateCellMLToFieldMap(CellMLModelIndex[terminalIdx],"Circuit/Pout",iron.FieldParameterSetTypes.VALUES,
-             DependentFieldNavierStokes,iron.FieldVariableTypes.U1,pCellMLComponent,iron.FieldParameterSetTypes.VALUES)
+            CellML.CreateCellMLToFieldMap(CellMLModelIndex[terminalIdx],"Circuit/Pout",oc.FieldParameterSetTypes.VALUES,
+             DependentFieldNavierStokes,oc.FieldVariableTypes.U1,pCellMLComponent,oc.FieldParameterSetTypes.VALUES)
 
     # Finish the creation of CellML <--> OpenCMISS field maps
     CellML.FieldMapsCreateFinish()
 
-    CellMLModelsField = iron.Field()
+    CellMLModelsField = oc.Field()
     CellML.ModelsFieldCreateStart(CellMLModelsFieldUserNumber,CellMLModelsField)
     CellML.ModelsFieldCreateFinish()
 
@@ -1221,24 +1221,24 @@ if (RCRBoundaries):
         nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
         if (nodeDomain == computationalNodeNumber):
             print("Terminal node: " + str(nodeIdx) + " - " + str(segment[nodeIdx]))
-            CellMLModelsField.ParameterSetUpdateNode(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            CellMLModelsField.ParameterSetUpdateNode(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,1,CellMLModelIndex[terminalIdx])
 
-    CellMLStateField = iron.Field()
+    CellMLStateField = oc.Field()
     CellML.StateFieldCreateStart(CellMLStateFieldUserNumber,CellMLStateField)
     CellML.StateFieldCreateFinish()
 
-    CellMLParametersField = iron.Field()
+    CellMLParametersField = oc.Field()
     CellML.ParametersFieldCreateStart(CellMLParametersFieldUserNumber,CellMLParametersField)
     CellML.ParametersFieldCreateFinish()
 
-    CellMLIntermediateField = iron.Field()
+    CellMLIntermediateField = oc.Field()
     CellML.IntermediateFieldCreateStart(CellMLIntermediateFieldUserNumber,CellMLIntermediateField)
     CellML.IntermediateFieldCreateFinish()
 
     # Finish the parameter update
-    DependentFieldNavierStokes.ParameterSetUpdateStart(iron.FieldVariableTypes.U1,iron.FieldParameterSetTypes.VALUES)
-    DependentFieldNavierStokes.ParameterSetUpdateFinish(iron.FieldVariableTypes.U1,iron.FieldParameterSetTypes.VALUES)
+    DependentFieldNavierStokes.ParameterSetUpdateStart(oc.FieldVariableTypes.U1,oc.FieldParameterSetTypes.VALUES)
+    DependentFieldNavierStokes.ParameterSetUpdateFinish(oc.FieldVariableTypes.U1,oc.FieldParameterSetTypes.VALUES)
 # DOC-END cellml define field maps
 
 #================================================================================================================================
@@ -1262,7 +1262,7 @@ if (Heart):
     pCellMLComponent = 2
 
     # Create the CellML environment
-    CellML = iron.CellML()
+    CellML = oc.CellML()
     CellML.CreateStart(CellMLUserNumber,Region)
     # Number of CellML models
     CellMLModelIndex = [0]*(numberOfInputNodes+1)
@@ -1291,17 +1291,17 @@ if (Heart):
             # Now we can set up the field variable component <--> CellML model variable mappings.
             # Map the OpenCMISS boundary flow rate values --> CellML
             # P is component 1 of the Dependent field U2 variable
-            CellML.CreateFieldToCellMLMap(DependentFieldNavierStokes,iron.FieldVariableTypes.U2,1,
-             iron.FieldParameterSetTypes.VALUES,CellMLModelIndex[inputIdx],"Heart/P_art",iron.FieldParameterSetTypes.VALUES)
+            CellML.CreateFieldToCellMLMap(DependentFieldNavierStokes,oc.FieldVariableTypes.U2,1,
+             oc.FieldParameterSetTypes.VALUES,CellMLModelIndex[inputIdx],"Heart/P_art",oc.FieldParameterSetTypes.VALUES)
             # Map the returned pressure values from CellML --> CMISS
             # qCellML is component 1 of the Dependent field U1 variable
-            CellML.CreateCellMLToFieldMap(CellMLModelIndex[inputIdx],"Heart/Q_art",iron.FieldParameterSetTypes.VALUES,
-             DependentFieldNavierStokes,iron.FieldVariableTypes.U1,qCellMLComponent,iron.FieldParameterSetTypes.VALUES)
+            CellML.CreateCellMLToFieldMap(CellMLModelIndex[inputIdx],"Heart/Q_art",oc.FieldParameterSetTypes.VALUES,
+             DependentFieldNavierStokes,oc.FieldVariableTypes.U1,qCellMLComponent,oc.FieldParameterSetTypes.VALUES)
 
     # Finish the creation of CellML <--> OpenCMISS field maps
     CellML.FieldMapsCreateFinish()
 
-    CellMLModelsField = iron.Field()
+    CellMLModelsField = oc.Field()
     CellML.ModelsFieldCreateStart(CellMLModelsFieldUserNumber,CellMLModelsField)
     CellML.ModelsFieldCreateFinish()
 
@@ -1311,24 +1311,24 @@ if (Heart):
         nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
         if (nodeDomain == computationalNodeNumber):
             print("Input node: " + str(nodeIdx) + " - " + str(segment[nodeIdx]))
-            CellMLModelsField.ParameterSetUpdateNode(iron.FieldVariableTypes.U,iron.FieldParameterSetTypes.VALUES,
+            CellMLModelsField.ParameterSetUpdateNode(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,1,CellMLModelIndex[inputIdx])
 
-    CellMLStateField = iron.Field()
+    CellMLStateField = oc.Field()
     CellML.StateFieldCreateStart(CellMLStateFieldUserNumber,CellMLStateField)
     CellML.StateFieldCreateFinish()
 
-    CellMLParametersField = iron.Field()
+    CellMLParametersField = oc.Field()
     CellML.ParametersFieldCreateStart(CellMLParametersFieldUserNumber,CellMLParametersField)
     CellML.ParametersFieldCreateFinish()
 
-    CellMLIntermediateField = iron.Field()
+    CellMLIntermediateField = oc.Field()
     CellML.IntermediateFieldCreateStart(CellMLIntermediateFieldUserNumber,CellMLIntermediateField)
     CellML.IntermediateFieldCreateFinish()
 
     # Finish the parameter update
-    DependentFieldNavierStokes.ParameterSetUpdateStart(iron.FieldVariableTypes.U1,iron.FieldParameterSetTypes.VALUES)
-    DependentFieldNavierStokes.ParameterSetUpdateFinish(iron.FieldVariableTypes.U1,iron.FieldParameterSetTypes.VALUES)
+    DependentFieldNavierStokes.ParameterSetUpdateStart(oc.FieldVariableTypes.U1,oc.FieldParameterSetTypes.VALUES)
+    DependentFieldNavierStokes.ParameterSetUpdateFinish(oc.FieldVariableTypes.U1,oc.FieldParameterSetTypes.VALUES)
 
 #================================================================================================================================
 #  Equations
@@ -1339,43 +1339,43 @@ if (ProgressDiagnostics):
 
 # 1th Equations Set - STREE
 if (streeBoundaries):
-    EquationsStree = iron.Equations()
+    EquationsStree = oc.Equations()
     EquationsSetStree.EquationsCreateStart(EquationsStree)
-    EquationsStree.sparsityType = iron.EquationsSparsityTypes.SPARSE
+    EquationsStree.sparsityType = oc.EquationsSparsityTypes.SPARSE
     # (NONE/TIMING/MATRIX/ELEMENT_MATRIX/NODAL_MATRIX)
-    EquationsStree.outputType = iron.EquationsOutputTypes.NONE
+    EquationsStree.outputType = oc.EquationsOutputTypes.NONE
     EquationsSetStree.EquationsCreateFinish()
 
 #------------------
 
 # 2nd Equations Set - CHARACTERISTIC
-EquationsCharacteristic = iron.Equations()
+EquationsCharacteristic = oc.Equations()
 EquationsSetCharacteristic.EquationsCreateStart(EquationsCharacteristic)
-EquationsCharacteristic.sparsityType = iron.EquationsSparsityTypes.SPARSE
+EquationsCharacteristic.sparsityType = oc.EquationsSparsityTypes.SPARSE
 # (NONE/TIMING/MATRIX/ELEMENT_MATRIX/NODAL_MATRIX)
-EquationsCharacteristic.outputType = iron.EquationsOutputTypes.NONE
+EquationsCharacteristic.outputType = oc.EquationsOutputTypes.NONE
 EquationsSetCharacteristic.EquationsCreateFinish()
 
 #------------------
 
 # 3rd Equations Set - NAVIER-STOKES
-EquationsNavierStokes = iron.Equations()
+EquationsNavierStokes = oc.Equations()
 EquationsSetNavierStokes.EquationsCreateStart(EquationsNavierStokes)
-EquationsNavierStokes.sparsityType = iron.EquationsSparsityTypes.FULL
-EquationsNavierStokes.lumpingType = iron.EquationsLumpingTypes.UNLUMPED
+EquationsNavierStokes.sparsityType = oc.EquationsSparsityTypes.FULL
+EquationsNavierStokes.lumpingType = oc.EquationsLumpingTypes.UNLUMPED
 # (NONE/TIMING/MATRIX/ELEMENT_MATRIX/NODAL_MATRIX)
-EquationsNavierStokes.outputType = iron.EquationsOutputTypes.NONE
+EquationsNavierStokes.outputType = oc.EquationsOutputTypes.NONE
 EquationsSetNavierStokes.EquationsCreateFinish()
 
 #------------------
 
 # 4th Equations Set - ADVECTION
 if (coupledAdvection):
-    EquationsAdvection = iron.Equations()
+    EquationsAdvection = oc.Equations()
     EquationsSetAdvection.EquationsCreateStart(EquationsAdvection)
-    EquationsAdvection.sparsityType = iron.EquationsSparsityTypes.SPARSE
+    EquationsAdvection.sparsityType = oc.EquationsSparsityTypes.SPARSE
     # (NONE/TIMING/MATRIX/ELEMENT_MATRIX/NODAL_MATRIX)
-    EquationsAdvection.outputType = iron.EquationsOutputTypes.NONE
+    EquationsAdvection.outputType = oc.EquationsOutputTypes.NONE
     EquationsSetAdvection.EquationsCreateFinish()
 
 #================================================================================================================================
@@ -1386,9 +1386,9 @@ if (ProgressDiagnostics):
     print(" == >> PROBLEM << == ")
 
 # Start the creation of a problem.
-Problem = iron.Problem()
-ProblemSpecification = [iron.ProblemClasses.FLUID_MECHANICS,
-                        iron.ProblemTypes.NAVIER_STOKES_EQUATION,
+Problem = oc.Problem()
+ProblemSpecification = [oc.ProblemClasses.FLUID_MECHANICS,
+                        oc.ProblemTypes.NAVIER_STOKES_EQUATION,
                         ProblemSubtype]
 Problem.CreateStart(ProblemUserNumber,context,ProblemSpecification)
 Problem.CreateFinish()
@@ -1456,27 +1456,27 @@ else:
    SimpleAdvectionControlLoopNumber = 2
 
 # Start the creation of the problem control loop
-TimeLoop = iron.ControlLoop()
+TimeLoop = oc.ControlLoop()
 Problem.ControlLoopCreateStart()
-Problem.ControlLoopGet([iron.ControlLoopIdentifiers.NODE],TimeLoop)
+Problem.ControlLoopGet([oc.ControlLoopIdentifiers.NODE],TimeLoop)
 TimeLoop.LabelSet('Time Loop')
 TimeLoop.TimesSet(startTime,stopTime,timeIncrement)
 TimeLoop.TimeOutputSet(DYNAMIC_SOLVER_NAVIER_STOKES_OUTPUT_FREQUENCY)
-TimeLoop.OutputTypeSet(iron.ControlLoopOutputTypes.TIMING)
+TimeLoop.OutputTypeSet(oc.ControlLoopOutputTypes.TIMING)
 
 # Set tolerances for iterative convergence loops
 if (RCRBoundaries or streeBoundaries or Heart):
-    Iterative1DCouplingLoop = iron.ControlLoop()
+    Iterative1DCouplingLoop = oc.ControlLoop()
     Problem.ControlLoopGet([Iterative1d0dControlLoopNumber,Iterative1dControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],Iterative1DCouplingLoop)
+     oc.ControlLoopIdentifiers.NODE],Iterative1DCouplingLoop)
     Iterative1DCouplingLoop.AbsoluteToleranceSet(couplingTolerance1D)
-    Iterative1D0DCouplingLoop = iron.ControlLoop()
-    Problem.ControlLoopGet([Iterative1d0dControlLoopNumber,iron.ControlLoopIdentifiers.NODE],
+    Iterative1D0DCouplingLoop = oc.ControlLoop()
+    Problem.ControlLoopGet([Iterative1d0dControlLoopNumber,oc.ControlLoopIdentifiers.NODE],
      Iterative1D0DCouplingLoop)
     Iterative1D0DCouplingLoop.AbsoluteToleranceSet(couplingTolerance1D0D)
 else:
-    Iterative1DCouplingLoop = iron.ControlLoop()
-    Problem.ControlLoopGet([Iterative1dControlLoopNumber,iron.ControlLoopIdentifiers.NODE],Iterative1DCouplingLoop)
+    Iterative1DCouplingLoop = oc.ControlLoop()
+    Problem.ControlLoopGet([Iterative1dControlLoopNumber,oc.ControlLoopIdentifiers.NODE],Iterative1DCouplingLoop)
     Iterative1DCouplingLoop.AbsoluteToleranceSet(couplingTolerance1D)
 
 Problem.ControlLoopCreateFinish()
@@ -1489,16 +1489,16 @@ if (ProgressDiagnostics):
     print(" == >> SOLVERS << == ")
 
 # Start the creation of the problem solvers
-DynamicSolverNavierStokes     = iron.Solver()
-NonlinearSolverNavierStokes   = iron.Solver()
-LinearSolverNavierStokes      = iron.Solver()
-NonlinearSolverCharacteristic = iron.Solver()
-LinearSolverCharacteristic    = iron.Solver()
+DynamicSolverNavierStokes     = oc.Solver()
+NonlinearSolverNavierStokes   = oc.Solver()
+LinearSolverNavierStokes      = oc.Solver()
+NonlinearSolverCharacteristic = oc.Solver()
+LinearSolverCharacteristic    = oc.Solver()
 if (streeBoundaries):
-    LinearSolverStree         = iron.Solver()
+    LinearSolverStree         = oc.Solver()
 if (coupledAdvection):
-    DynamicSolverAdvection    = iron.Solver()
-    LinearSolverAdvection     = iron.Solver()
+    DynamicSolverAdvection    = oc.Solver()
+    LinearSolverAdvection     = oc.Solver()
 
 Problem.SolversCreateStart()
 
@@ -1507,7 +1507,7 @@ Problem.SolversCreateStart()
 # 1st Solver, Simple 0D subloop - STREE
 if (streeBoundaries):
     Problem.SolverGet([Iterative1d0dControlLoopNumber,Simple0DControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],SolverStreeUserNumber,LinearSolverStree)
+     oc.ControlLoopIdentifiers.NODE],SolverStreeUserNumber,LinearSolverStree)
     # Set the nonlinear Jacobian type
     LinearSolverStree.OutputTypeSet(CMISS_SOLVER_OUTPUT_TYPE)
 
@@ -1515,9 +1515,9 @@ if (streeBoundaries):
 
 # 1st Solver, Simple 0D subloop - CellML
 if (RCRBoundaries or Heart):
-    CellMLSolver = iron.Solver()
+    CellMLSolver = oc.Solver()
     Problem.SolverGet([Iterative1d0dControlLoopNumber,Simple0DControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],SolverDAEUserNumber,CellMLSolver)
+     oc.ControlLoopIdentifiers.NODE],SolverDAEUserNumber,CellMLSolver)
     CellMLSolver.OutputTypeSet(CMISS_SOLVER_OUTPUT_TYPE)
 
 #------------------
@@ -1525,12 +1525,12 @@ if (RCRBoundaries or Heart):
 # 1st Solver, Iterative 1D subloop - CHARACTERISTIC
 if (RCRBoundaries or streeBoundaries or Heart):
     Problem.SolverGet([Iterative1d0dControlLoopNumber,Iterative1dControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],SolverCharacteristicUserNumber,NonlinearSolverCharacteristic)
+     oc.ControlLoopIdentifiers.NODE],SolverCharacteristicUserNumber,NonlinearSolverCharacteristic)
 else:
-    Problem.SolverGet([Iterative1dControlLoopNumber,iron.ControlLoopIdentifiers.NODE],
+    Problem.SolverGet([Iterative1dControlLoopNumber,oc.ControlLoopIdentifiers.NODE],
      SolverCharacteristicUserNumber,NonlinearSolverCharacteristic)
 # Set the nonlinear Jacobian type
-NonlinearSolverCharacteristic.NewtonJacobianCalculationTypeSet(iron.JacobianCalculationTypes.EQUATIONS) #(FD/EQUATIONS)
+NonlinearSolverCharacteristic.NewtonJacobianCalculationTypeSet(oc.JacobianCalculationTypes.EQUATIONS) #(FD/EQUATIONS)
 NonlinearSolverCharacteristic.OutputTypeSet(NONLINEAR_SOLVER_CHARACTERISTIC_OUTPUT_TYPE)
 # Set the solver settings
 NonlinearSolverCharacteristic.NewtonAbsoluteToleranceSet(absoluteToleranceNonlinearCharacteristic)
@@ -1540,7 +1540,7 @@ NonlinearSolverCharacteristic.NewtonRelativeToleranceSet(relativeToleranceNonlin
 NonlinearSolverCharacteristic.NewtonLinearSolverGet(LinearSolverCharacteristic)
 LinearSolverCharacteristic.OutputTypeSet(LINEAR_SOLVER_CHARACTERISTIC_OUTPUT_TYPE)
 # Set the solver settings
-LinearSolverCharacteristic.LinearTypeSet(iron.LinearSolverTypes.ITERATIVE)
+LinearSolverCharacteristic.LinearTypeSet(oc.LinearSolverTypes.ITERATIVE)
 LinearSolverCharacteristic.LinearIterativeMaximumIterationsSet(MAXIMUM_ITERATIONS)
 LinearSolverCharacteristic.LinearIterativeDivergenceToleranceSet(DIVERGENCE_TOLERANCE)
 LinearSolverCharacteristic.LinearIterativeRelativeToleranceSet(relativeToleranceLinearCharacteristic)
@@ -1552,16 +1552,16 @@ LinearSolverCharacteristic.LinearIterativeGMRESRestartSet(RESTART_VALUE)
 # 2nd Solver, Iterative 1D subloop - NAVIER-STOKES
 if (RCRBoundaries or streeBoundaries or Heart):
     Problem.SolverGet([Iterative1d0dControlLoopNumber,Iterative1dControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],SolverNavierStokesUserNumber,DynamicSolverNavierStokes)
+     oc.ControlLoopIdentifiers.NODE],SolverNavierStokesUserNumber,DynamicSolverNavierStokes)
 else:
-    Problem.SolverGet([Iterative1dControlLoopNumber,iron.ControlLoopIdentifiers.NODE],
+    Problem.SolverGet([Iterative1dControlLoopNumber,oc.ControlLoopIdentifiers.NODE],
      SolverNavierStokesUserNumber,DynamicSolverNavierStokes)
 DynamicSolverNavierStokes.OutputTypeSet(DYNAMIC_SOLVER_NAVIER_STOKES_OUTPUT_TYPE)
 DynamicSolverNavierStokes.DynamicThetaSet(dynamicSolverNavierStokesTheta)
 # Get the dynamic nonlinear solver
 DynamicSolverNavierStokes.DynamicNonlinearSolverGet(NonlinearSolverNavierStokes)
 # Set the nonlinear Jacobian type
-NonlinearSolverNavierStokes.NewtonJacobianCalculationTypeSet(iron.JacobianCalculationTypes.EQUATIONS) #(FD/EQUATIONS)
+NonlinearSolverNavierStokes.NewtonJacobianCalculationTypeSet(oc.JacobianCalculationTypes.EQUATIONS) #(FD/EQUATIONS)
 NonlinearSolverNavierStokes.OutputTypeSet(NONLINEAR_SOLVER_NAVIER_STOKES_OUTPUT_TYPE)
 
 # Set the solver settings
@@ -1572,7 +1572,7 @@ NonlinearSolverNavierStokes.NewtonRelativeToleranceSet(relativeToleranceNonlinea
 NonlinearSolverNavierStokes.NewtonLinearSolverGet(LinearSolverNavierStokes)
 LinearSolverNavierStokes.OutputTypeSet(LINEAR_SOLVER_NAVIER_STOKES_OUTPUT_TYPE)
 # Set the solver settings
-LinearSolverNavierStokes.LinearTypeSet(iron.LinearSolverTypes.ITERATIVE)
+LinearSolverNavierStokes.LinearTypeSet(oc.LinearSolverTypes.ITERATIVE)
 LinearSolverNavierStokes.LinearIterativeMaximumIterationsSet(MAXIMUM_ITERATIONS)
 LinearSolverNavierStokes.LinearIterativeDivergenceToleranceSet(DIVERGENCE_TOLERANCE)
 LinearSolverNavierStokes.LinearIterativeRelativeToleranceSet(relativeToleranceLinearNavierStokes)
@@ -1583,7 +1583,7 @@ LinearSolverNavierStokes.LinearIterativeGMRESRestartSet(RESTART_VALUE)
 
 # 1st Solver, Simple advection subloop - ADVECTION
 if (coupledAdvection):
-    Problem.SolverGet([SimpleAdvectionControlLoopNumber,iron.ControlLoopIdentifiers.NODE],
+    Problem.SolverGet([SimpleAdvectionControlLoopNumber,oc.ControlLoopIdentifiers.NODE],
      SolverAdvectionUserNumber,DynamicSolverAdvection)
     DynamicSolverAdvection.OutputTypeSet(DYNAMIC_SOLVER_NAVIER_STOKES_OUTPUT_TYPE)
     DynamicSolverAdvection.DynamicThetaSet(dynamicSolverAdvectionTheta)
@@ -1601,16 +1601,16 @@ if (ProgressDiagnostics):
     print(" == >> SOLVER EQUATIONS << == ")
 
 # Start the creation of the problem solver equations
-NonlinearSolverCharacteristic = iron.Solver()
-SolverEquationsCharacteristic = iron.SolverEquations()
-DynamicSolverNavierStokes     = iron.Solver()
-SolverEquationsNavierStokes   = iron.SolverEquations()
+NonlinearSolverCharacteristic = oc.Solver()
+SolverEquationsCharacteristic = oc.SolverEquations()
+DynamicSolverNavierStokes     = oc.Solver()
+SolverEquationsNavierStokes   = oc.SolverEquations()
 if (streeBoundaries):
-    LinearSolverStree         = iron.Solver()
-    SolverEquationsStree      = iron.SolverEquations()
+    LinearSolverStree         = oc.Solver()
+    SolverEquationsStree      = oc.SolverEquations()
 if (coupledAdvection):
-    DynamicSolverAdvection    = iron.Solver()
-    SolverEquationsAdvection  = iron.SolverEquations()
+    DynamicSolverAdvection    = oc.Solver()
+    SolverEquationsAdvection  = oc.SolverEquations()
 
 Problem.SolverEquationsCreateStart()
 
@@ -1619,9 +1619,9 @@ Problem.SolverEquationsCreateStart()
 # STREE Solver
 if (streeBoundaries):
     Problem.SolverGet([Iterative1d0dControlLoopNumber,Simple0DControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],SolverStreeUserNumber,LinearSolverStree)
+     oc.ControlLoopIdentifiers.NODE],SolverStreeUserNumber,LinearSolverStree)
     LinearSolverStree.SolverEquationsGet(SolverEquationsStree)
-    SolverEquationsStree.sparsityType = iron.SolverEquationsSparsityTypes.SPARSE
+    SolverEquationsStree.sparsityType = oc.SolverEquationsSparsityTypes.SPARSE
     # Add in the equations set
     EquationsSetStree = SolverEquationsStree.EquationsSetAdd(EquationsSetStree)
 
@@ -1629,11 +1629,11 @@ if (streeBoundaries):
 
 # CellML Solver
 if (RCRBoundaries or Heart):
-    CellMLSolver = iron.Solver()
-    CellMLEquations = iron.CellMLEquations()
+    CellMLSolver = oc.Solver()
+    CellMLEquations = oc.CellMLEquations()
     Problem.CellMLEquationsCreateStart()
     Problem.SolverGet([Iterative1d0dControlLoopNumber,Simple0DControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],SolverDAEUserNumber,CellMLSolver)
+     oc.ControlLoopIdentifiers.NODE],SolverDAEUserNumber,CellMLSolver)
     CellMLSolver.CellMLEquationsGet(CellMLEquations)
     # Add in the equations set
     CellMLEquations.CellMLAdd(CellML)
@@ -1644,12 +1644,12 @@ if (RCRBoundaries or Heart):
 # CHARACTERISTIC solver
 if (RCRBoundaries or streeBoundaries or Heart):
     Problem.SolverGet([Iterative1d0dControlLoopNumber,Iterative1dControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],SolverCharacteristicUserNumber,NonlinearSolverCharacteristic)
+     oc.ControlLoopIdentifiers.NODE],SolverCharacteristicUserNumber,NonlinearSolverCharacteristic)
 else:
-    Problem.SolverGet([Iterative1dControlLoopNumber,iron.ControlLoopIdentifiers.NODE],
+    Problem.SolverGet([Iterative1dControlLoopNumber,oc.ControlLoopIdentifiers.NODE],
      SolverCharacteristicUserNumber,NonlinearSolverCharacteristic)
 NonlinearSolverCharacteristic.SolverEquationsGet(SolverEquationsCharacteristic)
-SolverEquationsCharacteristic.sparsityType = iron.SolverEquationsSparsityTypes.SPARSE
+SolverEquationsCharacteristic.sparsityType = oc.SolverEquationsSparsityTypes.SPARSE
 # Add in the equations set
 EquationsSetCharacteristic = SolverEquationsCharacteristic.EquationsSetAdd(EquationsSetCharacteristic)
 
@@ -1658,12 +1658,12 @@ EquationsSetCharacteristic = SolverEquationsCharacteristic.EquationsSetAdd(Equat
 #  NAVIER-STOKES solver
 if (RCRBoundaries or streeBoundaries or Heart):
     Problem.SolverGet([Iterative1d0dControlLoopNumber,Iterative1dControlLoopNumber,
-     iron.ControlLoopIdentifiers.NODE],SolverNavierStokesUserNumber,DynamicSolverNavierStokes)
+     oc.ControlLoopIdentifiers.NODE],SolverNavierStokesUserNumber,DynamicSolverNavierStokes)
 else:
-    Problem.SolverGet([Iterative1dControlLoopNumber,iron.ControlLoopIdentifiers.NODE],
+    Problem.SolverGet([Iterative1dControlLoopNumber,oc.ControlLoopIdentifiers.NODE],
      SolverNavierStokesUserNumber,DynamicSolverNavierStokes)
 DynamicSolverNavierStokes.SolverEquationsGet(SolverEquationsNavierStokes)
-SolverEquationsNavierStokes.sparsityType = iron.SolverEquationsSparsityTypes.SPARSE
+SolverEquationsNavierStokes.sparsityType = oc.SolverEquationsSparsityTypes.SPARSE
 # Add in the equations set
 EquationsSetNavierStokes = SolverEquationsNavierStokes.EquationsSetAdd(EquationsSetNavierStokes)
 
@@ -1671,10 +1671,10 @@ EquationsSetNavierStokes = SolverEquationsNavierStokes.EquationsSetAdd(Equations
 
 # ADVECTION Solver
 if (coupledAdvection):
-    Problem.SolverGet([SimpleAdvectionControlLoopNumber,iron.ControlLoopIdentifiers.NODE],
+    Problem.SolverGet([SimpleAdvectionControlLoopNumber,oc.ControlLoopIdentifiers.NODE],
      SolverAdvectionUserNumber,DynamicSolverAdvection)
     DynamicSolverAdvection.SolverEquationsGet(SolverEquationsAdvection)
-    SolverEquationsAdvection.sparsityType = iron.SolverEquationsSparsityTypes.SPARSE
+    SolverEquationsAdvection.sparsityType = oc.SolverEquationsSparsityTypes.SPARSE
     # Add in the equations set
     EquationsSetAdvection = SolverEquationsAdvection.EquationsSetAdd(EquationsSetAdvection)
 
@@ -1690,21 +1690,21 @@ if (ProgressDiagnostics):
 
 if (streeBoundaries):
     # STREE
-    BoundaryConditionsStree = iron.BoundaryConditions()
+    BoundaryConditionsStree = oc.BoundaryConditions()
     SolverEquationsStree.BoundaryConditionsCreateStart(BoundaryConditionsStree)
     SolverEquationsStree.BoundaryConditionsCreateFinish()
 
 #------------------
 
 # CHARACTERISTIC
-BoundaryConditionsCharacteristic = iron.BoundaryConditions()
+BoundaryConditionsCharacteristic = oc.BoundaryConditions()
 SolverEquationsCharacteristic.BoundaryConditionsCreateStart(BoundaryConditionsCharacteristic)
 # Area-outlet
 for terminalIdx in range (1,numberOfTerminalNodes+1):
     nodeNumber = coupledNodeNumber[terminalIdx-1]
     nodeDomain = Decomposition.NodeDomainGet(nodeNumber,meshComponentNumberSpace)
     if (nodeDomain == computationalNodeNumber):
-        BoundaryConditionsCharacteristic.SetNode(DependentFieldNavierStokes,iron.FieldVariableTypes.U,
+        BoundaryConditionsCharacteristic.SetNode(DependentFieldNavierStokes,oc.FieldVariableTypes.U,
          versionIdx,derivIdx,nodeNumber,2,OutletBoundaryConditionType,A[nodeNumber][0])
 # Finish the creation of boundary conditions
 SolverEquationsCharacteristic.BoundaryConditionsCreateFinish()
@@ -1712,21 +1712,21 @@ SolverEquationsCharacteristic.BoundaryConditionsCreateFinish()
 #------------------
 
 # NAVIER-STOKES
-BoundaryConditionsNavierStokes = iron.BoundaryConditions()
+BoundaryConditionsNavierStokes = oc.BoundaryConditions()
 SolverEquationsNavierStokes.BoundaryConditionsCreateStart(BoundaryConditionsNavierStokes)
 # Flow-inlet
 for inputIdx in range (1,numberOfInputNodes+1):
     nodeNumber = inputNodeNumber[inputIdx-1]
     nodeDomain = Decomposition.NodeDomainGet(nodeNumber,meshComponentNumberSpace)
     if (nodeDomain == computationalNodeNumber):
-        BoundaryConditionsNavierStokes.SetNode(DependentFieldNavierStokes,iron.FieldVariableTypes.U,
+        BoundaryConditionsNavierStokes.SetNode(DependentFieldNavierStokes,oc.FieldVariableTypes.U,
          versionIdx,derivIdx,nodeNumber,1,InletBoundaryConditionType,Q[nodeNumber][0])
 # Area-outlet
 for terminalIdx in range (1,numberOfTerminalNodes+1):
     nodeNumber = coupledNodeNumber[terminalIdx-1]
     nodeDomain = Decomposition.NodeDomainGet(nodeNumber,meshComponentNumberSpace)
     if (nodeDomain == computationalNodeNumber):
-        BoundaryConditionsNavierStokes.SetNode(DependentFieldNavierStokes,iron.FieldVariableTypes.U,
+        BoundaryConditionsNavierStokes.SetNode(DependentFieldNavierStokes,oc.FieldVariableTypes.U,
          versionIdx,derivIdx,nodeNumber,2,OutletBoundaryConditionType,A[nodeNumber][0])
 # Finish the creation of boundary conditions
 SolverEquationsNavierStokes.BoundaryConditionsCreateFinish()
@@ -1735,14 +1735,14 @@ SolverEquationsNavierStokes.BoundaryConditionsCreateFinish()
 
 # ADVECTION
 if (coupledAdvection):
-    BoundaryConditionsAdvection = iron.BoundaryConditions()
+    BoundaryConditionsAdvection = oc.BoundaryConditions()
     SolverEquationsAdvection.BoundaryConditionsCreateStart(BoundaryConditionsAdvection)
     for inputIdx in range (1,numberOfInputNodes+1):
         nodeNumber = inputNodeNumber[inputIdx-1]
         nodeDomain = Decomposition.NodeDomainGet(nodeNumber,meshComponentNumberConc)
         if (nodeDomain == computationalNodeNumber):
-            BoundaryConditionsAdvection.SetNode(DependentFieldAdvection,iron.FieldVariableTypes.U,
-             versionIdx,derivIdx,nodeNumber,1,iron.BoundaryConditionsTypes.FIXED,1.0)
+            BoundaryConditionsAdvection.SetNode(DependentFieldAdvection,oc.FieldVariableTypes.U,
+             versionIdx,derivIdx,nodeNumber,1,oc.BoundaryConditionsTypes.FIXED,1.0)
     SolverEquationsAdvection.BoundaryConditionsCreateFinish()
 
 #================================================================================================================================
@@ -1856,7 +1856,7 @@ if (streeBoundaries):
                     # Read number of nodes
                     if (rownum == 1):
                         numberOfSegments = int(row[6])
-                        stree = numpy.zeros((numberOfSegments+1,7,timePeriod+1),dtype = numpy.float)
+                        stree = numpy.zeros((numberOfSegments+1,7,timePeriod+1),dtype = float)
                     stree[rownum][0] = float(row[0])/Ls  # Length of segment
                     stree[rownum][1] = float(row[1])     # Radius of segment
                     stree[rownum][2] = float(row[2])     # Terminal segment
@@ -1926,8 +1926,8 @@ if (streeBoundaries):
         zt = ifft(stree[1][6])*Zs
         # Set the impedance
         for k in range(0,timePeriod+1):
-            MaterialsFieldStree.ParameterSetUpdateNodeDP(iron.FieldVariableTypes.U,
-             iron.FieldParameterSetTypes.VALUES,1,1,k+1,terminalIdx,zt[k].real)
+            MaterialsFieldStree.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,
+             oc.FieldParameterSetTypes.VALUES,1,1,k+1,terminalIdx,zt[k].real)
 
 #================================================================================================================================
 #  Run Solvers
