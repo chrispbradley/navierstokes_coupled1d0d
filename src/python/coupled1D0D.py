@@ -704,7 +704,7 @@ GeometricField.CreateFinish()
 # Set the geometric field values for version 1
 versionIdx = 1
 for nodeIdx in range(1,numberOfNodesSpace+1):
-    nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
     if (nodeDomain == computationalNodeNumber):
         GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
          versionIdx,derivIdx,nodeIdx,1,xValues[nodeIdx][0])
@@ -715,7 +715,7 @@ for nodeIdx in range(1,numberOfNodesSpace+1):
 # Set the geometric field for bifurcation
 for bifIdx in range (1,numberOfBifurcations+1):
     nodeIdx = bifurcationNodeNumber[bifIdx-1]
-    nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
     if (nodeDomain == computationalNodeNumber):
         for versionNumber in range(2,4):
             GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
@@ -727,7 +727,7 @@ for bifIdx in range (1,numberOfBifurcations+1):
 # Set the geometric field for trifurcation
 for trifIdx in range (1,numberOfTrifurcations+1):
     nodeIdx = trifurcationNodeNumber[trifIdx-1]
-    nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
     if nodeDomain == computationalNodeNumber:
         for versionNumber in range(2,5):
             GeometricField.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
@@ -873,7 +873,7 @@ DependentFieldNavierStokes.ParameterSetCreate(oc.FieldVariableTypes.U,oc.FieldPa
 
 # Initialise the dependent field variables
 for nodeIdx in range (1,numberOfNodesSpace+1):
-    nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
     if (nodeDomain == computationalNodeNumber):
         if (nodeIdx in trifurcationNodeNumber):
             versions = [1,2,3,4]
@@ -921,7 +921,7 @@ if (coupledAdvection):
     # Initialise the dependent field variables
     for inputIdx in range (1,numberOfInputNodes+1):
         nodeIdx = inputNodeNumber[inputIdx-1]
-        nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberConc)
+        nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberConc,nodeIdx)
         if (nodeDomain == computationalNodeNumber):
             DependentFieldAdvection.ParameterSetUpdateNodeDP(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
              versionIdx,derivIdx,nodeIdx,1,0.0)
@@ -987,7 +987,7 @@ MaterialsFieldNavierStokes.ComponentValuesInitialiseDP(oc.FieldVariableTypes.U,
 bifIdx = 0
 trifIdx = 0
 for nodeIdx in range(1,numberOfNodesSpace+1,1):
-    nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
     if (nodeDomain == computationalNodeNumber):
         if (nodeIdx in trifurcationNodeNumber):
             versions = [1,2,3,4]
@@ -1054,7 +1054,7 @@ EquationsSetNavierStokes.IndependentCreateFinish()
 
 # Set the normal wave direction for arteries
 for nodeIdx in range(1,numberOfNodesSpace+1,1):
-    nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
     if (nodeDomain == computationalNodeNumber):
         if (Tp[nodeIdx] == 'Artery'):
             # Incoming
@@ -1068,7 +1068,7 @@ for nodeIdx in range(1,numberOfNodesSpace+1,1):
 # Set the normal wave direction for bifurcation
 for bifIdx in range (1,numberOfBifurcations+1):
     nodeIdx = bifurcationNodeNumber[bifIdx-1]
-    nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
     if (nodeDomain == computationalNodeNumber):
         if (Tp[nodeIdx] == 'Artery'):
             # Incoming(parent)
@@ -1092,7 +1092,7 @@ for bifIdx in range (1,numberOfBifurcations+1):
 # Set the normal wave direction for trifurcation
 for trifIdx in range (1,numberOfTrifurcations+1):
     nodeIdx = trifurcationNodeNumber[trifIdx-1]
-    nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
     if (nodeDomain == computationalNodeNumber):
         if (Tp[nodeIdx] == 'Artery'):
             # Incoming(parent)
@@ -1180,7 +1180,7 @@ if (RCRBoundaries):
     # Windkessel Model
     for terminalIdx in range (1,numberOfTerminalNodes+1):
         nodeIdx = coupledNodeNumber[terminalIdx-1]
-        nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+        nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
         print('reading model: ' + "./input/CellMLModels/outlet/"+str(segment[nodeIdx])+"/ModelRCR.cellml")
         if (nodeDomain == computationalNodeNumber):
             CellMLModelIndex[terminalIdx] = CellML.ModelImport("./input/CellMLModels/outlet/"+str(segment[nodeIdx])+"/ModelRCR.cellml")
@@ -1196,7 +1196,7 @@ if (RCRBoundaries):
     # ModelIndex
     for terminalIdx in range (1,numberOfTerminalNodes+1):
         nodeIdx = coupledNodeNumber[terminalIdx-1]
-        nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+        nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
         if (nodeDomain == computationalNodeNumber):
             # Now we can set up the field variable component <--> CellML model variable mappings.
             # Map the OpenCMISS boundary flow rate values --> CellML
@@ -1218,7 +1218,7 @@ if (RCRBoundaries):
     # Set the models field at boundary nodes
     for terminalIdx in range (1,numberOfTerminalNodes+1):
         nodeIdx = coupledNodeNumber[terminalIdx-1]
-        nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+        nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
         if (nodeDomain == computationalNodeNumber):
             print("Terminal node: " + str(nodeIdx) + " - " + str(segment[nodeIdx]))
             CellMLModelsField.ParameterSetUpdateNode(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
@@ -1270,7 +1270,7 @@ if (Heart):
     # Heart Model
     for inputIdx in range (1,numberOfInputNodes+1):
         nodeIdx = inputNodeNumber[inputIdx-1]
-        nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+        nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
         print('reading model: ' + "./input/CellMLModels/inlet/"+str(segment[nodeIdx])+"/Heart.cellml")
         if (nodeDomain == computationalNodeNumber):
             CellMLModelIndex[inputIdx] = CellML.ModelImport("./input/CellMLModels/inlet/"+str(segment[nodeIdx])+"/Heart.cellml")
@@ -1286,7 +1286,7 @@ if (Heart):
     # ModelIndex
     for inputIdx in range (1,numberOfInputNodes+1):
         nodeIdx = inputNodeNumber[inputIdx-1]
-        nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+        nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
         if (nodeDomain == computationalNodeNumber):
             # Now we can set up the field variable component <--> CellML model variable mappings.
             # Map the OpenCMISS boundary flow rate values --> CellML
@@ -1308,7 +1308,7 @@ if (Heart):
     # Set the models field at inlet boundary nodes
     for inputIdx in range (1,numberOfInputNodes+1):
         nodeIdx = inputNodeNumber[inputIdx-1]
-        nodeDomain = Decomposition.NodeDomainGet(nodeIdx,meshComponentNumberSpace)
+        nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeIdx)
         if (nodeDomain == computationalNodeNumber):
             print("Input node: " + str(nodeIdx) + " - " + str(segment[nodeIdx]))
             CellMLModelsField.ParameterSetUpdateNode(oc.FieldVariableTypes.U,oc.FieldParameterSetTypes.VALUES,
@@ -1702,7 +1702,7 @@ SolverEquationsCharacteristic.BoundaryConditionsCreateStart(BoundaryConditionsCh
 # Area-outlet
 for terminalIdx in range (1,numberOfTerminalNodes+1):
     nodeNumber = coupledNodeNumber[terminalIdx-1]
-    nodeDomain = Decomposition.NodeDomainGet(nodeNumber,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeNumber)
     if (nodeDomain == computationalNodeNumber):
         BoundaryConditionsCharacteristic.SetNode(DependentFieldNavierStokes,oc.FieldVariableTypes.U,
          versionIdx,derivIdx,nodeNumber,2,OutletBoundaryConditionType,A[nodeNumber][0])
@@ -1717,14 +1717,14 @@ SolverEquationsNavierStokes.BoundaryConditionsCreateStart(BoundaryConditionsNavi
 # Flow-inlet
 for inputIdx in range (1,numberOfInputNodes+1):
     nodeNumber = inputNodeNumber[inputIdx-1]
-    nodeDomain = Decomposition.NodeDomainGet(nodeNumber,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeNumber)
     if (nodeDomain == computationalNodeNumber):
         BoundaryConditionsNavierStokes.SetNode(DependentFieldNavierStokes,oc.FieldVariableTypes.U,
          versionIdx,derivIdx,nodeNumber,1,InletBoundaryConditionType,Q[nodeNumber][0])
 # Area-outlet
 for terminalIdx in range (1,numberOfTerminalNodes+1):
     nodeNumber = coupledNodeNumber[terminalIdx-1]
-    nodeDomain = Decomposition.NodeDomainGet(nodeNumber,meshComponentNumberSpace)
+    nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberSpace,nodeNumber)
     if (nodeDomain == computationalNodeNumber):
         BoundaryConditionsNavierStokes.SetNode(DependentFieldNavierStokes,oc.FieldVariableTypes.U,
          versionIdx,derivIdx,nodeNumber,2,OutletBoundaryConditionType,A[nodeNumber][0])
@@ -1739,7 +1739,7 @@ if (coupledAdvection):
     SolverEquationsAdvection.BoundaryConditionsCreateStart(BoundaryConditionsAdvection)
     for inputIdx in range (1,numberOfInputNodes+1):
         nodeNumber = inputNodeNumber[inputIdx-1]
-        nodeDomain = Decomposition.NodeDomainGet(nodeNumber,meshComponentNumberConc)
+        nodeDomain = Decomposition.NodeDomainGet(meshComponentNumberConc,nodeNumber)
         if (nodeDomain == computationalNodeNumber):
             BoundaryConditionsAdvection.SetNode(DependentFieldAdvection,oc.FieldVariableTypes.U,
              versionIdx,derivIdx,nodeNumber,1,oc.BoundaryConditionsTypes.FIXED,1.0)
@@ -1862,7 +1862,7 @@ if (streeBoundaries):
                     stree[rownum][2] = float(row[2])     # Terminal segment
                     stree[rownum][3] = float(row[3])     # Number of parent segment
                     if (row[4]):
-                        stree[rownum][4] = float(row[4]) # Number of daughter segments
+                        stree[rownum][4] = float(row[4]) # Number of daughter segmentsm
                         stree[rownum][5] = float(row[5])
                 # Next line
                 rownum+=1
